@@ -83,6 +83,21 @@
 			<?php echo ( isset( $content ) ) ? $content : ''; ?>
 		</div>
 		<div id="two-right">
+			<?php
+				if( ! $this->uri->segment(1) )
+				{
+			?>
+				<div id="downloads">
+					<h3>Downloads</h3>
+					<ul>
+						<li><a href="https://bitbucket.org/skunkbad/community-auth/get/tip.zip">Tip <span>(Installed in CodeIgniter)</span></a></li>
+						<li><a href="https://bitbucket.org/skunkbad/community-auth/get/<?php echo TAG; ?>.zip"><?php echo TAG; ?> <span>(Installed in CodeIgniter)</span></a></li>
+						<li><a href="https://bitbucket.org/skunkbad/community-auth/downloads/community-auth-<?php echo TAG; ?>-isolated.zip"><?php echo TAG; ?> Files Only <span>(Without CodeIgniter)</span></a></li>
+					</ul>
+				</div>
+			<?php
+				}
+			?>
 			<div id="menu">
 				<h3>Site Menu</h3>
 				<ul>

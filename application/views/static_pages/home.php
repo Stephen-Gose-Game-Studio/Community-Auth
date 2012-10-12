@@ -29,24 +29,24 @@
 		?>
 
 			<p>
-				Community Auth is a user authentication application for <a href="http://codeigniter.com" rel="external">CodeIgniter</a>. It is completely unique, and not based on anyone's previous work. If you've come here looking for a CodeIgniter authentication library, then please keep in mind that Community Auth is more than just a library. Community Auth is distributed with example controllers, models, views, and should be considered a project foundation. All of this is available 2 ways:
+				Community Auth is a user authentication application for <a href="http://codeigniter.com" rel="external">CodeIgniter</a>. It is completely unique, and not based on anyone's previous work. If you've come here looking for a CodeIgniter authentication library, then please keep in mind that Community Auth is more than just a library. Community Auth is distributed with example controllers, models, views, and should be considered a project foundation. All of this is available 3 ways:
 			</p>
 			<ol class="std-list">
-				<li>A version pre-installed in a CodeIgniter <?php echo CI_VERSION; ?> installation.</li>
-				<li>An <i>"isolated"</i> version, which is not pre-installed in CodeIgniter. Downloaded files are manually merged with your existing CodeIgniter application.</li>
+				<li><b>Tip</b> - The most current code in development. Installed in CodeIgniter <?php echo CI_VERSION; ?> for your convenience. May contain code not fully tested.</li>
+				<li><b><?php echo TAG; ?></b> - The last tagged version in the repository. Installed in CodeIgniter <?php echo CI_VERSION; ?> for your convenience. Fully tested.</li>
+				<li><b><?php echo TAG; ?> Files Only</b> - Isolated code not installed in CodeIgniter. Downloaded files are manually merged with your existing CodeIgniter application. Only suitable for experienced developers.</li>
 			</ol>
 			<h2>Core Authentication Features</h2>
 			<ul class="std-list">
 				<li>User Authentication <i>(User Login)</i></li>
-				<li>Access by Role</li>
-				<li>Access by Group</li>
-				<li>Content Switching by Role</li>
-				<li>Content Switching For Logged In Users</li>
-				<li>Limit Failed Login Attempts</li>
-				<li>Limit Login to a Single Device <i>(Default)</i></li>
+				<li>Access Granted by Level / Role</li>
+				<li>Access Granted by Role Group</li>
+				<li>Content Switching in Views</li>
+				<li>Limits Failed Login Attempts</li>
+				<li>Limits Login to a Single Device <i>(Default)</i></li>
 				<li>Deny Access by IP <i>(Requires Local Apache Configuration File)</i></li>
-				<li>Persistent Login <i>(Remember Me)</i></li>
-				<li>Forgotten Password or Username Recovery</li>
+				<li>Persistent Login <i>(Remember Me) (Turned Off by Default)</i></li>
+				<li>Forgotten Password and Username Recovery</li>
 				<li>New User Registration
 					<ul class="std-list">
 						<li>Off by Default</li>
@@ -67,11 +67,11 @@
 				Community Auth also makes for a great learning tool for developers who are new to CodeIgniter. <a href="http://www.firephp.org" rel="external">FirePHP</a> is included and autoloaded in the distribution, and by installing <a href="http://getfirebug.com" rel="external">Firebug</a>, and either the FirePHP or <a href="http://developercompanion.com/" rel="external">DeveloperCompanion</a> extensions for Firefox, you've got an impressive debugging tool at your disposal. For those of you who prefer Chrome, <a href="http://www.chromephp.com/" rel="external">ChromePHP</a> is also loaded in both development and testing environments. Community Auth also shows examples of extending the CodeIgniter controller class, extending other CodeIgniter libraries, overriding CodeIgniter helpers, pagination, and ajax using <a href="http://jquery.com" rel="external">jQuery</a>. An <a href="https://github.com/valums/ajax-upload">ajax uploader</a> shows you how to upload images and store them on the filesystem or in the database. A "custom uploader" shows you how to use jQuery UI's draggable, droppable, and sortable, and all at the same time. There's more too.
 			</p>
 			<p>
-				If you've downloaded Community Auth and are checking it out, thank you for giving it a try. I'm pleased to share this application with you, and hopefully we can work together to make it especially useful for your CodeIgniter projects. It's been something I've worked on over the last couple of years, so you are getting the benefit of hundreds of hours of programming time.
+				If you've downloaded Community Auth and are checking it out, thank you for giving it a try. I'm pleased to share this application with you, and hopefully we can work together to make it especially useful for your CodeIgniter projects. It's been something I've worked on over the last couple of years, and you are getting the benefit of hundreds of hours of programming time and experience.
 			</p>
-			<h3>Download and Repository</h3>
+			<h3>Repositories</h3>
 			<p>
-				The repository and download for Community Auth is currently at <a href="https://bitbucket.org/skunkbad/community-auth" rel="external">Bitbucket</a> and mirrored at <a href="https://github.com/skunkbad/Community-Auth">GitHub</a>. The "<a href="https://bitbucket.org/skunkbad/community-auth/get/tip.zip">tip</a>" of the Community Auth Repository is the version that is pre-installed in CodeIgniter. If you just want the files, find the isolated version on the <a href="https://bitbucket.org/skunkbad/community-auth/downloads">downloads page</a>.
+				Community Auth currently has repositories at <a href="https://bitbucket.org/skunkbad/community-auth" rel="external">Bitbucket</a> and <a href="https://github.com/skunkbad/Community-Auth">GitHub</a>.
 			</p>
 			<h3>Quick Start</h3>
 			<p>If you're an experienced user of CodeIgniter, you can get started quite easily.</p>
@@ -79,8 +79,9 @@
 				<li>
 					Make sure to look through all of the config files, and set all configuration options according to the description in the comments. Community Auth uses some config files that are not part of CodeIgniter's standard set, but also has custom additions to the constants.php config file.
 				</li>
+				<li>Create a database.</li>
 				<li>
-					Edit then run the <?php echo secure_anchor('init', 'init controller'); ?>. This populates the database and creates the admin. You may optionally create a set of test users with the init.php controller. Please make sure to disable or remove this controller and the db.sql file once completed.
+					Edit then run the <?php echo secure_anchor('init', 'init controller'); ?>. This populates the database and creates the admin. You may optionally create a set of test users while running this installer. Please make sure to disable or remove this controller and the db.sql file once completed.
 				</li>
 			</ul>
 			<p>For more detailed instructions on how to install, configure, and use Community Auth, please check out the <?php echo anchor('documentation','documentation'); ?> for Community Auth, which takes you step by step through the process of getting up and running.</p>

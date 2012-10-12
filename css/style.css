@@ -47,12 +47,14 @@ ul.std-list ul {margin:0 0 0 2em;}
 #user_info h3{margin:0;}
 .doc_code {margin:1em 0;background-color:#111;border:solid 1px #bf1e2e;padding:5px 0;-moz-border-radius:11px;-webkit-border-radius:11px;border-radius:11px;}
 
-#menu{background-color:#111;padding:15px;margin:4em 0 0 0;color:#fff;-moz-border-radius:15px;-webkit-border-radius:15px;border-radius:15px;border:1px solid #f4f4f6;}
-#menu h3{color:#f4f4f6;text-align:right;padding-right:4px;}
-#menu ul{list-style:none;}
-#menu a{display:block;width:252px;padding:4px 0 4px 8px;background-color:#222;text-decoration:none;color:#fff;border-bottom:solid 1px #111;}
+#menu, #downloads{background-color:#111;padding:15px;margin:4em 0 0 0;color:#fff;-moz-border-radius:15px;-webkit-border-radius:15px;border-radius:15px;border:1px solid #f4f4f6;}
+#static_pages-index #menu{margin:1em 0 0 0;}
+#menu h3, #downloads h3{color:#f4f4f6;text-align:right;padding-right:4px;}
+#menu ul, #downloads ul{list-style:none;}
+#menu a, #downloads a{display:block;width:252px;padding:4px 0 4px 8px;background-color:#222;text-decoration:none;color:#fff;border-bottom:solid 1px #111;}
 #menu a#active{background-color:#f4f4f6;color:#000;}
-#menu a:hover{background-color:#555;}
+#menu a:hover, #downloads a:hover{background-color:#555;}
+#downloads a span{display:block;float:right;width:auto;padding:0 8px 0 0;font-size:70%;font-style:italic;}
 
 /* TABLES */
 table.tablesorter {font-family:arial;background-color: #CDCDCD;margin:10px 0 0 0;font-size: 8pt;width: 100%;text-align: left;}

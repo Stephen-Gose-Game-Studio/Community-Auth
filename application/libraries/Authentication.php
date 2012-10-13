@@ -227,25 +227,38 @@ class Authentication
 						/**
 						 * Since the session cookie needs to be able to use
 						 * the secure flag, we want to hold some of the user's 
-						 * data in another cookie. For instance, the `user_name` 
-						 * is used to have a logout button on standard HTTP pages.
-						 *
-						 * auth_model->get_auth_data() responds with some user profile
-						 * data, and you might add other data that is not sensitive. 
-						 * Please do not add sensitive data to the http user cookie.
+						 * data in another cookie.
 						 */
 						$http_user_cookie = array(
 							'name'   => config_item('http_user_cookie_name'),
-							'value'  => $this->CI->session->serialize_data( array(
-								'_user_name'  => $auth_data->user_name,
-								'_first_name' => $auth_data->first_name,
-								'_last_name'  => $auth_data->last_name
-							) ),
 							'domain' => config_item('cookie_domain'),
 							'path'   => config_item('cookie_path'),
 							'prefix' => config_item('cookie_prefix'),
 							'secure' => FALSE
 						);
+
+						// Initialize the HTTP user cookie data
+						$http_user_cookie_data['_user_name'] = $auth_data->user_name;
+
+						// Get the array of selected profile columns
+						$selected_profile_columns = config_item('selected_profile_columns');
+
+						// If selected profile columns are to be added to the HTTP user cookie
+						if( ! empty( $selected_profile_columns ) )
+						{
+							// Loop through the auth data
+							foreach( (array) $auth_data as $k => $v )
+							{
+								// If a selected profile column
+								if( in_array( $k, $selected_profile_columns ) )
+								{
+									$http_user_cookie_data['_' . $k] = $v;
+								}
+							}
+						}
+
+						// Serialize the HTTP user cookie data
+						$http_user_cookie['value'] = $this->CI->session->serialize_data( $http_user_cookie_data );
 
 						// Check if remember me requested, and set cookie if yes
 						if( config_item('allow_remember_me') && $this->CI->input->post('remember_me') )

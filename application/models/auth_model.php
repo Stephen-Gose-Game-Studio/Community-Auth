@@ -20,10 +20,17 @@ class Auth_model extends MY_Model {
 	 * @var array
 	 * @access protected
 	 */
-	protected $selected_profile_columns = array(
-		'first_name',
-		'last_name'
-	);
+	protected $selected_profile_columns = array();
+
+	/**
+	 * Class constructor
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+
+		$this->selected_profile_columns = config_item('selected_profile_columns');
+	}
 
 	/**
 	 * Check the user table to see if a user exists by username or email address.
@@ -63,21 +70,26 @@ class Auth_model extends MY_Model {
 		{
 			$row = $query->row_array();
 
-			// Get the role associated with the user level
-			$role = $this->authentication->roles[$row['user_level']];
-
 			// Profile data query
-			$query = $this->db->select( $this->selected_profile_columns )
-				->from( config_item( $role . '_profiles_table') )
-				->where( 'user_id', $row['user_id'] )
-				->limit(1)
-				->get();
-
-			if ( $query->num_rows() == 1 )
+			if( ! empty( $this->selected_profile_columns ) )
 			{
-				// Merge the user data and profile data and return
-				return (object) array_merge( $row,  $query->row_array() );
+				// Get the role associated with the user level
+				$role = $this->authentication->roles[$row['user_level']];
+
+				$query = $this->db->select( $this->selected_profile_columns )
+					->from( config_item( $role . '_profiles_table') )
+					->where( 'user_id', $row['user_id'] )
+					->limit(1)
+					->get();
+
+				if ( $query->num_rows() == 1 )
+				{
+					// Merge the user data and profile data and return
+					return (object) array_merge( $row,  $query->row_array() );
+				}
 			}
+
+			return $row;
 		}
 
 		return FALSE;
@@ -147,21 +159,26 @@ class Auth_model extends MY_Model {
 		{
 			$row = $query->row_array();
 
-			// Get the role associated with the user level
-			$role = $this->authentication->roles[$row['user_level']];
-
 			// Profile data query
-			$query = $this->db->select( $this->selected_profile_columns )
-				->from( config_item( $role . '_profiles_table') )
-				->where( 'user_id', $row['user_id'] )
-				->limit(1)
-				->get();
-
-			if ( $query->num_rows() == 1 )
+			if( ! empty( $this->selected_profile_columns ) )
 			{
-				// Merge the user data and profile data and return
-				return (object) array_merge( $row,  $query->row_array() );
+				// Get the role associated with the user level
+				$role = $this->authentication->roles[$row['user_level']];
+
+				$query = $this->db->select( $this->selected_profile_columns )
+					->from( config_item( $role . '_profiles_table') )
+					->where( 'user_id', $row['user_id'] )
+					->limit(1)
+					->get();
+
+				if ( $query->num_rows() == 1 )
+				{
+					// Merge the user data and profile data and return
+					return (object) array_merge( $row,  $query->row_array() );
+				}
 			}
+
+			return $row;
 		}
 
 		return FALSE;

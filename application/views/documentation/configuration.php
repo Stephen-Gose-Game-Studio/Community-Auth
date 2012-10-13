@@ -103,6 +103,14 @@
 <p>
 	How long (in seconds) the Remember Me functionality allows the session to last. Based on the needs of your website, you might choose a duration that is shorter or longer than the provided setting, which is just under 3 years. You might not need Community Auth's Remember Me functionality if you configure CodeIgniter's session to be persistent by default, but Remember Me allows you to have both a session that ends when the browser closes, and a session that ends at the time specified in this setting.
 </p>
+<h3>HTTP User Cookie Name</h3>
+<p>
+	While the authentication cookie is handled in the session, the http user cookie allows for some user data to be stored so that the user is semi-identifiable, or for other general purpose use related to the logged in user. <b>DO NOT USE FOR AUTHENTICATION!</b>
+</p>
+<h3>Selected Profile Columns</h3>
+<p>
+	An array of profile data to select when logging in or checking login. Anything in this array should exist as a field in all user profile tables. The data is made available in the HTTP user cookie, in views, and in config items. Leave the array empty if you don't want to select any of the logged in user's profile data.
+</p>
 <h2 id="config">/application/config/config.php</h2>
 <p>
 	There are a lot of things in this file that need to be examined, not only for Community Auth, but for CodeIgniter in general. It's beyond the scope of this documentation to cover all aspects of this configuration file, but there are a few settings that are essential or helpful, and require your review.

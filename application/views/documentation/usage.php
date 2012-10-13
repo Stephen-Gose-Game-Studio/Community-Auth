@@ -95,21 +95,24 @@
 <ul class="std-list">
 	<li><b>$auth_user_id</b> - The logged in user's user ID.</li>
 	<li><b>$auth_user_name</b> - The logged in user's username.</li>
-	<li><b>$auth_first_name</b> - The logged in user's first name.</li>
-	<li><b>$auth_last_name</b> - The logged in user's last name.</li>
 	<li><b>$auth_level</b> - The logged in user's account level by number.</li>
 	<li><b>$auth_role</b> - The logged in user's account level by name.</li>
 	<li><b>$auth_email</b> - The logged in user's email address.</li>
 </ul>
+<p>
+	The following variables are set in the example application because the fields are represented in the selected profile columns array:
+</p>
+<ul class="std-list">
+	<li><b>$auth_first_name</b> - The logged in user's first name.</li>
+	<li><b>$auth_last_name</b> - The logged in user's last name.</li>
+</ul>
 <h3>Variables Accessible in Controller</h3>
 <p>
-	When a user is logged in, the same variables that are available in views are set as CI_Controller class members.
+	When a user is logged in, the same variables that are available in views are set as CI_Controller class members. The exception would be the <b>auth_first_name</b> and <b>auth_last_name</b>. Class members are simply not set from the selected profile columns. This was preferred to using magic methods to get and set class members that aren't hard coded into MY_Controller, which is better for performance, and translates into better flexibility for the application because adding or subtracting fields from the selected profile columns only requires changes to the corresponding array in config/authentication.php.
 </p>
 <ul class="std-list">
 	<li><b>$this->auth_user_id</b> - The logged in user's user ID.</li>
 	<li><b>$this->auth_user_name</b> - The logged in user's username.</li>
-	<li><b>$this->auth_first_name</b> - The logged in user's first name.</li>
-	<li><b>$this->auth_last_name</b> - The logged in user's last name.</li>
 	<li><b>$this->auth_level</b> - The logged in user's account level by number.</li>
 	<li><b>$this->auth_role</b> - The logged in user's account level by name.</li>
 	<li><b>$this->auth_email</b> - The logged in user's email address.</li>
@@ -121,11 +124,16 @@
 <ul class="std-list">
 	<li><b>config_item('auth_user_id')</b> - The logged in user's user ID.</li>
 	<li><b>config_item('auth_user_name')</b> - The logged in user's username.</li>
-	<li><b>config_item('auth_first_name')</b> - The logged in user's first name.</li>
-	<li><b>config_item('auth_last_name')</b> - The logged in user's last name.</li>
 	<li><b>config_item('auth_level')</b> - The logged in user's account level by number.</li>
 	<li><b>config_item('auth_role')</b> - The logged in user's account level by name.</li>
 	<li><b>config_item('auth_email')</b> - The logged in user's email address.</li>
+</ul>
+<p>
+	The following config items are set in the example application because the fields are represented in the selected profile columns array:
+</p>
+<ul class="std-list">
+	<li><b>config_item('auth_first_name')</b> - The logged in user's first name.</li>
+	<li><b>config_item('auth_last_name')</b> - The logged in user's last name.</li>
 </ul>
 <h3>More!</h3>
 <p>

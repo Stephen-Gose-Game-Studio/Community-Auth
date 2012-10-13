@@ -30,22 +30,6 @@ class MY_Controller extends CI_Controller
 	public $auth_user_name;
 
 	/**
-	 * The logged-in user's first name
-	 *
-	 * @var string
-	 * @access public
-	 */
-	public $auth_first_name;
-
-	/**
-	 * The logged-in user's last name
-	 *
-	 * @var string
-	 * @access public
-	 */
-	public $auth_last_name;
-
-	/**
 	 * The logged-in user's authentication account type by number
 	 *
 	 * @var string
@@ -327,8 +311,6 @@ class MY_Controller extends CI_Controller
 		// Set user specific variables to be available in controllers
 		$this->auth_user_id    = $this->auth_data->user_id;
 		$this->auth_user_name  = $this->auth_data->user_name;
-		$this->auth_first_name = $this->auth_data->first_name;
-		$this->auth_last_name  = $this->auth_data->last_name;
 		$this->auth_level      = $this->auth_data->user_level;
 		$this->auth_role       = $this->authentication->roles[$this->auth_data->user_level];
 		$this->auth_email      = $this->auth_data->user_email;
@@ -337,22 +319,33 @@ class MY_Controller extends CI_Controller
 		$data = array(
 			'auth_user_id'    => $this->auth_user_id,
 			'auth_user_name'  => $this->auth_user_name,
-			'auth_first_name' => $this->auth_first_name,
-			'auth_last_name'  => $this->auth_last_name,
 			'auth_level'      => $this->auth_level,
 			'auth_role'       => $this->auth_role,
 			'auth_email'      => $this->auth_email
 		);
-		$this->load->vars($data);
 
 		// Set user specific variables to be available as config items
 		$this->config->set_item( 'auth_user_id',    $this->auth_user_id );
 		$this->config->set_item( 'auth_user_name',  $this->auth_user_name );
-		$this->config->set_item( 'auth_first_name', $this->auth_user_name );
-		$this->config->set_item( 'auth_last_name',  $this->auth_user_name );
 		$this->config->set_item( 'auth_level',      $this->auth_level );
 		$this->config->set_item( 'auth_role',       $this->auth_role );
 		$this->config->set_item( 'auth_email',      $this->auth_email );
+
+		// Get the array of selected profile columns
+		$selected_profile_columns = config_item('selected_profile_columns');
+
+		// Create variables for views and config items out of selected profile columns
+		foreach( $selected_profile_columns as $field )
+		{
+			// View data
+			$data['auth_' . $field] = $this->auth_data->$field;
+
+			// Config items
+			$this->config->set_item('auth_' . $field, $this->auth_data->$field );
+		}
+
+		// Load vars
+		$this->load->vars($data);
 	}
 
 	// --------------------------------------------------------------
@@ -529,7 +522,6 @@ class MY_Controller extends CI_Controller
 			);
 		}
 	}
-
 }
 
 /* End of file MY_Controller.php */

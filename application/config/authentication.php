@@ -186,6 +186,23 @@ $config['http_user_cookie_name'] = 'httpUser';
 
 /*
 | -----------------------------------------------------------------
+|			        SELECTED PROFILE COLUMNS							
+| -----------------------------------------------------------------
+| An array of profile data to select when logging in or checking login.
+| Anything in this array should exist in all user profile tables.
+| The data is made available in the HTTP user cookie, in views, and in
+| config items. Leave the array empty if you don't want to select any 
+| of the logged in user's profile data.
+|
+*/
+
+$config['selected_profile_columns'] = array(
+	'first_name',
+	'last_name'
+);
+
+/*
+| -----------------------------------------------------------------
 |			CSRF FLASHDATA NAME AND EXPIRATION FOR HTTP*						
 | -----------------------------------------------------------------
 | *These settings only apply to a cookie that is set when "cookie_secure"

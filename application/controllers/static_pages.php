@@ -67,9 +67,9 @@ class Static_pages extends MY_Controller {
 		 */
 		if( WEBSITE_NAME == 'Community Auth' )
 		{
-			$data['title'] = 'Community Auth - Open Source CodeIgniter Authentication';
-			$data['keywords'] = 'codeigniter,authentication,auth,login,open source';
-			$data['description'] = 'Community Auth is an open source user authentication application for CodeIgniter. Community Auth is currently distributed pre-installed in version ' . CI_VERSION . ' of CodeIgniter';
+			$data['title'] = 'Community Auth - Open Source CodeIgniter Authentication - CodeIgniter Project Foundation - CodeIgniter Example Application';
+			$data['keywords'] = 'codeigniter,authentication,auth,login,\'open source\',example';
+			$data['description'] = 'Community Auth is an open source user authentication application for CodeIgniter. More than just an authentication library, Community Auth is distributed with example controllers, models, views, and should be considered a project foundation.';
 		}
 
 		$this->load->view( $this->template, $data );

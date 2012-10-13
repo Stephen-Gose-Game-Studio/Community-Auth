@@ -39,3 +39,7 @@
 		</div>
 	</div>
 </div>
+<?php
+
+/* End of file offline_modal.php */
+/* Location: /application/views/contact/offline_modal.php */

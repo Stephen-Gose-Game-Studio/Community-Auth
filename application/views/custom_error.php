@@ -17,3 +17,7 @@
 <p>
 	<?php echo $message; ?>
 </p>
+
+<?php
+/* End of file custom_error.php */
+/* Location: /application/views/custom_error.php */

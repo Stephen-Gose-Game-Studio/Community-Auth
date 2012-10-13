@@ -1,6 +1,6 @@
 <?php if( ! defined('BASEPATH') ) exit('No direct script access allowed');
 /**
- * Community Auth - Template Content View
+ * Community Auth - Floating Template View
  *
  * Community Auth is an open source authentication application for CodeIgniter 2.1.3
  *
@@ -203,5 +203,5 @@
 </html>
 <?php
 
-/* End of file main_template.php */
-/* Location: /application/views/templates/main_template.php */
+/* End of file floating_template.php */
+/* Location: /application/views/templates/floating_template.php */

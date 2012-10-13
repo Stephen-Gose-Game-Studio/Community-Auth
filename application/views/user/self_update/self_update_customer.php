@@ -1,3 +1,16 @@
+<?php if( ! defined('BASEPATH') ) exit('No direct script access allowed');
+/**
+ * Community Auth - Customer's Self Update View
+ *
+ * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ *
+ * @package     Community Auth
+ * @author      Robert B Gottier
+ * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @link        http://community-auth.com
+ */
+ ?>
 <div class="form-column-left">
 	<fieldset>
 		<legend>Account Details:</legend>
@@ -293,3 +306,7 @@
 		</div>
 	</div>
 </div>
+
+<?php
+/* End of file self_update_customer.php */
+/* Location: /application/views/user/self_update/self_update_customer.php */

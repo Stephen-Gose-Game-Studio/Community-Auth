@@ -23,7 +23,7 @@
 	Community Auth's documentation consists of three simple steps, and assumes that you have Community Auth installed in CodeIgniter <?php echo CI_VERSION; ?>.
 </p>
 <p>
-	The links to each of the three documentation steps are provided at the top of each documentation page. Please start with <?php echo anchor('documentation/configuration', 'configuration'); ?> and work your way down. You'll have Community Auth up and running in no time at all. Once you are done, learn how to easily <?php echo anchor('documentation/add_a_role', 'add a new role'); ?>
+	The links to each of the three documentation steps are provided at the top of each documentation page. Please start with <?php echo anchor('documentation/configuration', 'configuration'); ?> and work your way down. You'll have Community Auth up and running in no time at all. Once you are done, learn how to easily <?php echo anchor('documentation/add_a_role', 'add a new role'); ?>.
 </p>
 <h3>Why are there two versions of Community Auth?</h3>
 <p>

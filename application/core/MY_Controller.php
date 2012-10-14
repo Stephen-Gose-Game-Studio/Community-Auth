@@ -258,7 +258,7 @@ class MY_Controller extends CI_Controller
 	 */
 	protected function is_logged_in()
 	{
-		$this->verify_min_level();
+		$this->verify_min_level( 0 );
 	}
 
 	// --------------------------------------------------------------
@@ -270,7 +270,7 @@ class MY_Controller extends CI_Controller
 	 * @param   int    the minimum level of user to be verified.
 	 * @return  mixed  either returns TRUE or doesn't return
 	 */
-	protected function verify_min_level( $level = 0 )
+	protected function verify_min_level( $level )
 	{
 		if( $this->auth_data = $this->authentication->check_login( $level ) )
 		{

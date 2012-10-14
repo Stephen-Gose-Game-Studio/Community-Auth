@@ -86,12 +86,12 @@ class Authentication
 	// --------------------------------------------------------------
 
 	/**
-	 * Present a login form if the user is not logged in. 
+	 * Handle a login attempt, or determine if user already logged in.
 	 * 
-	 * @param   mixed  int if user level by number or an array if user level by name(s)
-	 * @return  mixed  either an array of login status data or FALSE
+	 * @param   mixed  a user level (int) or an array of user roles
+	 * @return  mixed  either an object containing the user's data or FALSE
 	 */
-	public function user_status( $required_level = 0 )
+	public function user_status( $requirement )
 	{
 		$string      = $this->CI->input->post('login_string');
 		$password    = $this->CI->input->post('login_pass');
@@ -120,7 +120,7 @@ class Authentication
 		if( $this->auth_identifier )
 		{
 			// Check login, and return user's data or FALSE if not logged in
-			if( $auth_data = $this->check_login( $required_level ) )
+			if( $auth_data = $this->check_login( $requirement ) )
 			{
 				return $auth_data;
 			}
@@ -138,7 +138,7 @@ class Authentication
 			if( $form_token == $flash_token )
 			{
 				// Attempt login with posted values and return either the user's data, or FALSE
-				if( $auth_data = $this->login( $required_level, $string, $password ) )
+				if( $auth_data = $this->login( $requirement, $string, $password ) )
 				{
 					return $auth_data;
 				}
@@ -169,12 +169,12 @@ class Authentication
 	/**
 	 * Test post of login form 
 	 * 
-	 * @param   mixed   either int if user level by number or an array if user level by name(s) 
+	 * @param   mixed  a user level (int) or an array of user roles
 	 * @param   string  the posted username or email address
 	 * @param   string  the posted password
-	 * @return  mixed   either an array of login status data or FALSE
+	 * @return  mixed  either an object containing the user's data or FALSE
 	 */
-	private function login( $required_level = 0, $user_string, $user_pass )
+	private function login( $requirement, $user_string, $user_pass )
 	{
 		/**
 		 * Validate the posted username / email address and password.
@@ -194,7 +194,7 @@ class Authentication
 				if( $auth_data = $this->CI->auth_model->get_auth_data( $user_string ) )
 				{
 					// Confirm user
-					if( ! $this->_user_confirmed( $auth_data, $required_level, $user_pass ) )
+					if( ! $this->_user_confirmed( $auth_data, $requirement, $user_pass ) )
 					{
 						// Login failed ...
 						log_message(
@@ -202,94 +202,15 @@ class Authentication
 							"\n user is banned             = " . ( $auth_data->user_banned === 1 ? 'yes' : 'no' ) .
 							"\n password in database       = " . $auth_data->user_pass .
 							"\n posted/hashed password     = " . $this->hash_passwd( $user_pass, $auth_data->user_salt ) . 
-							"\n required level             = " . ( is_array( $required_level ) ? implode( $required_level ) : $required_level ) . 
+							"\n required level or role     = " . ( is_array( $requirement ) ? implode( $requirement ) : $requirement ) . 
 							"\n user level in database     = " . $auth_data->user_level . 
 							"\n user level equivalant role = " . $this->roles[$auth_data->user_level]
 						);
 					}
 					else
 					{
-						// Store login time in database and cookie
-						$login_time = time();
-
-						// Update user record in database
-						$this->CI->auth_model->login_update( $auth_data->user_id, $login_time );
-
-						/**
-						 * Since the session cookie needs to be able to use
-						 * the secure flag, we want to hold some of the user's 
-						 * data in another cookie.
-						 */
-						$http_user_cookie = array(
-							'name'   => config_item('http_user_cookie_name'),
-							'domain' => config_item('cookie_domain'),
-							'path'   => config_item('cookie_path'),
-							'prefix' => config_item('cookie_prefix'),
-							'secure' => FALSE
-						);
-
-						// Initialize the HTTP user cookie data
-						$http_user_cookie_data['_user_name'] = $auth_data->user_name;
-
-						// Get the array of selected profile columns
-						$selected_profile_columns = config_item('selected_profile_columns');
-
-						// If selected profile columns are to be added to the HTTP user cookie
-						if( ! empty( $selected_profile_columns ) )
-						{
-							// Loop through the auth data
-							foreach( (array) $auth_data as $k => $v )
-							{
-								// If a selected profile column
-								if( in_array( $k, $selected_profile_columns ) )
-								{
-									$http_user_cookie_data['_' . $k] = $v;
-								}
-							}
-						}
-
-						// Serialize the HTTP user cookie data
-						$http_user_cookie['value'] = $this->CI->session->serialize_data( $http_user_cookie_data );
-
-						// Check if remember me requested, and set cookie if yes
-						if( config_item('allow_remember_me') && $this->CI->input->post('remember_me') )
-						{
-							$remember_me_cookie = array(
-								'name'   => config_item('remember_me_cookie_name'),
-								'value'  => config_item('remember_me_expiration') + time(),
-								'expire' => config_item('remember_me_expiration'),
-								'domain' => config_item('cookie_domain'),
-								'path'   => config_item('cookie_path'),
-								'prefix' => config_item('cookie_prefix'),
-								'secure' => FALSE
-							);
-
-							$this->CI->input->set_cookie( $remember_me_cookie );
-
-							// Make sure the CI session cookie doesn't expire on close
-							$this->CI->session->sess_expire_on_close = FALSE;
-							$this->CI->session->sess_expiration = config_item('remember_me_expiration');
-
-							// Set the expiration of the http user cookie
-							$http_user_cookie['expire'] = config_item('remember_me_expiration') + time();
-						}
-						else
-						{
-							// Unless remember me is requested, the http user cookie expires when the browser closes.
-							$http_user_cookie['expire'] = 0;
-						}
-
-						$this->CI->input->set_cookie( $http_user_cookie );
-
-						// Set CI session cookie
-						$this->CI->session->set_userdata( 
-							'auth_identifier',
-							$this->create_auth_identifier(
-								$auth_data->user_id,
-								$auth_data->user_modified,
-								$login_time
-							)
-						);
+						// Set session cookie and HTTP user data delete_cookie
+						$this->_maintain_state( $auth_data );
 
 						// Send the auth data back to the controller
 						return $auth_data;
@@ -335,10 +256,10 @@ class Authentication
 	/**
 	 * Verify if user already logged in. 
 	 * 
-	 * @param   mixed   either int if user level by number or an array if user level by name(s)
-	 * @return  mixed   either an array of login status data or FALSE
+	 * @param   mixed  a user level (int) or an array of user roles
+	 * @return  mixed  either an object containing the user's data or FALSE
 	 */
-	public function check_login( $required_level = 0 )
+	public function check_login( $requirement )
 	{
 		// Check that the auth identifier is not empty
 		if( ! $this->auth_identifier )
@@ -367,7 +288,7 @@ class Authentication
 		if( $auth_data !== FALSE )
 		{
 			// Confirm user
-			if( ! $this->_user_confirmed( $auth_data, $required_level ) )
+			if( ! $this->_user_confirmed( $auth_data, $requirement ) )
 			{
 				// Logged in check failed ...
 				log_message(
@@ -376,7 +297,7 @@ class Authentication
 					"\n disallowed multiple logins      = " . ( config_item('disallow_multiple_logins') ? 'true' : 'false' ) .
 					"\n hashed user agent               = " . md5( $this->CI->input->user_agent() ) . 
 					"\n user agent from database        = " . $auth_data->user_agent_string . 
-					"\n required level                  = " . ( is_array( $required_level ) ? implode( $required_level ) : $required_level ) . 
+					"\n required level or role          = " . ( is_array( $requirement ) ? implode( $requirement ) : $requirement ) . 
 					"\n user level in database          = " . $auth_data->user_level . 
 					"\n user level in database (string) = " . $this->roles[$auth_data->user_level]
 				);
@@ -499,7 +420,8 @@ class Authentication
 	/**
 	 * Insert details of failed login attempt into database
 	 * 
-	 * @param  string  the username or email address used to attempt login
+	 * @param   string  the username or email address used to attempt login
+	 * @return  void
 	 */
 	public function log_error( $string )
 	{
@@ -556,8 +478,9 @@ class Authentication
 	/**
 	 * Hash Password
 	 *
-	 * @param  string  The raw (supplied) password
-	 * @param  string  The random salt
+	 * @param   string  The raw (supplied) password
+	 * @param   string  The random salt
+	 * @return  string  the hashed password
 	 */
 	public function hash_passwd( $password, $random_salt )
 	{
@@ -589,9 +512,10 @@ class Authentication
 	/**
 	 * Check Password
 	 *
-	 * @param  string  The hashed password 
-	 * @param  string  The random salt
-	 * @param  string  The raw (supplied) password
+	 * @param   string  The hashed password 
+	 * @param   string  The random salt
+	 * @param   string  The raw (supplied) password
+	 * @return  bool
 	 */
 	public function check_passwd( $hash, $random_salt, $password )
 	{
@@ -619,16 +543,17 @@ class Authentication
 	 * Confirm the User During Login Attempt or Status Check
 	 *
 	 * 1) Is the user banned?
-	 * 2) If a login attempt, does the password match one in DB?
+	 * 2) If a login attempt, does the password match the one in the user record?
 	 * 3) If a status check, does the user agent match when multiple logins disallowed?
 	 * 4) Is the user the appropriate level for the request?
 	 * 5) Is the user the appropriate role for the request?
 	 *
-	 * @param  obj    the user record
-	 * @param  mized  the required user level or role
-	 * @param  mixed  the posted password during a login attempt
+	 * @param   obj    the user record
+	 * @param   mixed  the required user level or array of roles
+	 * @param   mixed  the posted password during a login attempt
+	 * @return  bool
 	 */
-	private function _user_confirmed( $auth_data, $required_level, $user_pass = FALSE )
+	private function _user_confirmed( $auth_data, $requirement, $user_pass = FALSE )
 	{
 		// Check if user is banned
 		$is_banned = ( $auth_data->user_banned === '1' );
@@ -654,10 +579,10 @@ class Authentication
 		}
 
 		// Check if the user has the appropriate user level
-		$wrong_level = ( is_int( $required_level ) && $auth_data->user_level < $required_level );
+		$wrong_level = ( is_int( $requirement ) && $auth_data->user_level < $requirement );
 
 		// Check if the user has the appropriate role
-		$wrong_role = ( is_array( $required_level ) && ! in_array( $this->roles[$auth_data->user_level], $required_level ) );
+		$wrong_role = ( is_array( $requirement ) && ! in_array( $this->roles[$auth_data->user_level], $requirement ) );
 
 		// If anything wrong
 		if( $is_banned OR $wrong_level OR $wrong_role OR $wrong_password OR $disallowed_multiple_login )
@@ -669,6 +594,100 @@ class Authentication
 	}
 	
 	// ---------------------------------------------------------------
+	
+	/**
+	 * Setup session, HTTP user cookie, and remember me cookie 
+	 * during a successful login attempt.
+	 *
+	 * @param   obj  the user record
+	 * @return  void
+	 */
+	private function _maintain_state( $auth_data )
+	{
+		// Store login time in database and cookie
+		$login_time = time();
+
+		// Update user record in database
+		$this->CI->auth_model->login_update( $auth_data->user_id, $login_time );
+
+		/**
+		 * Since the session cookie needs to be able to use
+		 * the secure flag, we want to hold some of the user's 
+		 * data in another cookie.
+		 */
+		$http_user_cookie = array(
+			'name'   => config_item('http_user_cookie_name'),
+			'domain' => config_item('cookie_domain'),
+			'path'   => config_item('cookie_path'),
+			'prefix' => config_item('cookie_prefix'),
+			'secure' => FALSE
+		);
+
+		// Initialize the HTTP user cookie data
+		$http_user_cookie_data['_user_name'] = $auth_data->user_name;
+
+		// Get the array of selected profile columns
+		$selected_profile_columns = config_item('selected_profile_columns');
+
+		// If selected profile columns are to be added to the HTTP user cookie
+		if( ! empty( $selected_profile_columns ) )
+		{
+			// Loop through the auth data
+			foreach( (array) $auth_data as $k => $v )
+			{
+				// If a selected profile column
+				if( in_array( $k, $selected_profile_columns ) )
+				{
+					$http_user_cookie_data['_' . $k] = $v;
+				}
+			}
+		}
+
+		// Serialize the HTTP user cookie data
+		$http_user_cookie['value'] = $this->CI->session->serialize_data( $http_user_cookie_data );
+
+		// Check if remember me requested, and set cookie if yes
+		if( config_item('allow_remember_me') && $this->CI->input->post('remember_me') )
+		{
+			$remember_me_cookie = array(
+				'name'   => config_item('remember_me_cookie_name'),
+				'value'  => config_item('remember_me_expiration') + time(),
+				'expire' => config_item('remember_me_expiration'),
+				'domain' => config_item('cookie_domain'),
+				'path'   => config_item('cookie_path'),
+				'prefix' => config_item('cookie_prefix'),
+				'secure' => FALSE
+			);
+
+			$this->CI->input->set_cookie( $remember_me_cookie );
+
+			// Make sure the CI session cookie doesn't expire on close
+			$this->CI->session->sess_expire_on_close = FALSE;
+			$this->CI->session->sess_expiration = config_item('remember_me_expiration');
+
+			// Set the expiration of the http user cookie
+			$http_user_cookie['expire'] = config_item('remember_me_expiration') + time();
+		}
+		else
+		{
+			// Unless remember me is requested, the http user cookie expires when the browser closes.
+			$http_user_cookie['expire'] = 0;
+		}
+
+		$this->CI->input->set_cookie( $http_user_cookie );
+
+		// Set CI session cookie
+		$this->CI->session->set_userdata( 
+			'auth_identifier',
+			$this->create_auth_identifier(
+				$auth_data->user_id,
+				$auth_data->user_modified,
+				$login_time
+			)
+		);
+	}
+	
+	// -----------------------------------------------------------------------
 }
 
 /* End of file Authentication.php */

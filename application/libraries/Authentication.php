@@ -193,17 +193,8 @@ class Authentication
 				// Get user table data if username or email address matches a record
 				if( $auth_data = $this->CI->auth_model->get_auth_data( $user_string ) )
 				{
-					if(
-						// Check if user is banned
-						( $auth_data->user_banned === '1' )
-
-						// Check if the posted password matches the one in the row
-						OR ( ! $this->check_passwd( $auth_data->user_pass, $auth_data->user_salt, $user_pass ) )
-
-						// Check if the user is of high enough level to be here
-						OR ( is_int( $required_level ) && $auth_data->user_level < $required_level )
-						OR ( is_array( $required_level ) && ! in_array( $this->roles[$auth_data->user_level], $required_level ) )
-					)
+					// Confirm user
+					if( ! $this->_user_confirmed( $auth_data, $required_level, $user_pass ) )
 					{
 						// Login failed ...
 						log_message(
@@ -211,7 +202,7 @@ class Authentication
 							"\n user is banned             = " . ( $auth_data->user_banned === 1 ? 'yes' : 'no' ) .
 							"\n password in database       = " . $auth_data->user_pass .
 							"\n posted/hashed password     = " . $this->hash_passwd( $user_pass, $auth_data->user_salt ) . 
-							"\n required level             = " . $required_level . 
+							"\n required level             = " . ( is_array( $required_level ) ? implode( $required_level ) : $required_level ) . 
 							"\n user level in database     = " . $auth_data->user_level . 
 							"\n user level equivalant role = " . $this->roles[$auth_data->user_level]
 						);
@@ -375,21 +366,8 @@ class Authentication
 		// If the query produced a match
 		if( $auth_data !== FALSE )
 		{
-			if(
-				// Check if the user is banned
-				( $auth_data->user_banned === '1' )
-
-				/*
-				 * If multiple logins are disallowed, 
-				 * check that the user agent string 
-				 * is the same as one that logged in
-				 */
-				OR ( config_item('disallow_multiple_logins') && md5( $this->CI->input->user_agent() ) != $auth_data->user_agent_string )
-
-				// Check that the user is of high enough level to be here
-				OR ( is_int( $required_level ) && $auth_data->user_level < $required_level )
-				OR ( is_array( $required_level ) && ! in_array( $this->roles[$auth_data->user_level], $required_level ) )
-			)
+			// Confirm user
+			if( ! $this->_user_confirmed( $auth_data, $required_level ) )
 			{
 				// Logged in check failed ...
 				log_message(
@@ -398,7 +376,7 @@ class Authentication
 					"\n disallowed multiple logins      = " . ( config_item('disallow_multiple_logins') ? 'true' : 'false' ) .
 					"\n hashed user agent               = " . md5( $this->CI->input->user_agent() ) . 
 					"\n user agent from database        = " . $auth_data->user_agent_string . 
-					"\n required level                  = " . $required_level . 
+					"\n required level                  = " . ( is_array( $required_level ) ? implode( $required_level ) : $required_level ) . 
 					"\n user level in database          = " . $auth_data->user_level . 
 					"\n user level in database (string) = " . $this->roles[$auth_data->user_level]
 				);
@@ -636,6 +614,61 @@ class Authentication
 	}
 
 	// --------------------------------------------------------------
+	
+	/**
+	 * Confirm the User During Login Attempt or Status Check
+	 *
+	 * 1) Is the user banned?
+	 * 2) If a login attempt, does the password match one in DB?
+	 * 3) If a status check, does the user agent match when multiple logins disallowed?
+	 * 4) Is the user the appropriate level for the request?
+	 * 5) Is the user the appropriate role for the request?
+	 *
+	 * @param  obj    the user record
+	 * @param  mized  the required user level or role
+	 * @param  mixed  the posted password during a login attempt
+	 */
+	private function _user_confirmed( $auth_data, $required_level, $user_pass = FALSE )
+	{
+		// Check if user is banned
+		$is_banned = ( $auth_data->user_banned === '1' );
+
+		// Is this a login attempt
+		if( $user_pass )
+		{
+			// Check if the posted password matches the one in the user profile
+			$wrong_password = ( ! $this->check_passwd( $auth_data->user_pass, $auth_data->user_salt, $user_pass ) );
+
+			// Check for disallowed multiple logins doesn't apply to login attempt
+			$disallowed_multiple_login = FALSE;
+		}
+
+		// Else we are checking login status
+		else
+		{
+			// Password check doesn't apply to a login status check
+			$wrong_password = FALSE;
+
+			// If multiple logins are not allowed, check if user agent string matches
+			$disallowed_multiple_login = ( config_item('disallow_multiple_logins') && md5( $this->CI->input->user_agent() ) != $auth_data->user_agent_string );
+		}
+
+		// Check if the user has the appropriate user level
+		$wrong_level = ( is_int( $required_level ) && $auth_data->user_level < $required_level );
+
+		// Check if the user has the appropriate role
+		$wrong_role = ( is_array( $required_level ) && ! in_array( $this->roles[$auth_data->user_level], $required_level ) );
+
+		// If anything wrong
+		if( $is_banned OR $wrong_level OR $wrong_role OR $wrong_password OR $disallowed_multiple_login )
+		{
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+	
+	// ---------------------------------------------------------------
 }
 
 /* End of file Authentication.php */

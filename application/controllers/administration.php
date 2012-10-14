@@ -179,7 +179,7 @@ class Administration extends MY_Controller {
 	{
 		// The pagination class doesn't allow for multiple config files, so we load configuration the old fashion way
 		$this->config->load( 'pagination/administration/manage_users_pagination' );
-		$config = config_item('manage_users_pagination_settings');
+		$pagination_config = config_item('manage_users_pagination_settings');
 
 		// If search_in and search_for are not empty, this is a search
 		$search_in = $this->input->post('search_in', TRUE );
@@ -196,15 +196,15 @@ class Administration extends MY_Controller {
 			'user_level' => $this->auth_level,
 			'search_in'  => $search_in,
 			'search_for' => $search_for,
-			'limit'      => $config['per_page'],
+			'limit'      => $pagination_config['per_page'],
 			'page'       => (int) $page
 		);
 
 		// Get the total rows that match the requested set of users, or all by default
-		$config['total_rows'] = $this->user_model->manage_user_records_data( $query_params, TRUE );
+		$pagination_config['total_rows'] = $this->user_model->manage_user_records_data( $query_params, TRUE );
 
 		// Initialize pagination and create links
-		$this->pagination->initialize( $config );
+		$this->pagination->initialize( $pagination_config );
 		$view_data['pagination_links'] = $this->pagination->create_links();
 
 		// Get the actual user data that matches the requested set of users

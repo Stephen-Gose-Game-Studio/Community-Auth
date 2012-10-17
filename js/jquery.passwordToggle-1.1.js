@@ -53,11 +53,13 @@
 
 			/* Build the replacement element */
 			var new_element = $('<input />', {
-				id		: ele.attr('id'),
-				'class'	: ele.attr('class'),
-				type	: type,
-				name	: ele.attr('name'),
-				value	: ele.val()
+				id           : ele.attr('id'),
+				'class'      : ele.attr('class'),
+				type         : type,
+				name         : ele.attr('name'),
+				value        : ele.val(),
+				maxlength    : ele.attr('maxlength'),
+				autocomplete : ele.attr('autocomplete')
 			});
 
 			/* Do the replacement */

@@ -47,12 +47,15 @@ class MY_Model extends CI_Model {
 
 	/**
 	 * Validation rules are set in the model, since 
-	 * the model is aware of what data should be inserted or updated.
+	 * the model is aware of what data should be inserted 
+	 * or updated. The exception would be when using the 
+	 * reauthentication feature, because we can optionally 
+	 * pass in our validation rules from the controller.
 	 *
 	 * @var string
-	 * @access protected
+	 * @access public
 	 */
-	protected $validation_rules = array();
+	public $validation_rules = array();
 	
 	// --------------------------------------------------------------
 
@@ -151,6 +154,76 @@ class MY_Model extends CI_Model {
 		list( $prefix, $suffix ) = $this->error_delimiters;
 
 		$this->form_validation->set_error_delimiters( $prefix, $suffix );
+	}
+
+	// --------------------------------------------------------------
+
+	/**
+	 * You might require a logged in user to provide their username and 
+	 * password to get past a certain point, or to make an important change. 
+	 * Whatever the case may be, reauthentication makes the logged in 
+	 * user provide a good username and password to proceed.
+	 *
+	 * @param   string  the username or email address to confirm
+	 * @param   string  the password to confirm
+	 * @return  bool
+	 */
+	public function reauthenticate( $stand_alone = TRUE )
+	{
+		// Set form validation rules if they haven't been provided
+		if( $stand_alone )
+		{
+			$this->config->load('form_validation/auth/login');
+			$this->validation_rules = config_item('login_rules');
+		}
+
+		if( $this->validate() )
+		{
+			// Get the logged in user's record
+			$query = $this->db->select('
+				user_name,
+				user_email,
+				user_pass,
+				user_salt,
+				user_login_time,
+				user_modified
+			')->get_where( config_item('user_table'), 
+				array( 'user_id' => config_item('auth_user_id') ) );
+
+			// If there is a matching row
+			if( $query->num_rows() == 1 )
+			{
+				$row = $query->row();
+
+				// Hash the provided password using the user's salt
+				$hashed_pwd = $this->authentication->hash_passwd( set_value('login_pass'), $row->user_salt );
+
+				/**
+				 * Reauthentication isn't quite as vigorous as a login,
+				 * because we will assume their is a lower risk based
+				 * on the fact that the user is already logged in.
+				 */
+				if(
+					// If the password matches
+					$hashed_pwd == $row->user_pass &&
+					// If the provided string is the user's email or username
+					( set_value('login_string') == $row->user_email OR set_value('login_string') == $row->user_name ) &&
+					// The user login time matches one in session
+					$row->user_login_time == $this->authentication->expose_login_time( $this->session->userdata('auth_identifier') ) && 
+					// The user's last modified time matches the one in the session
+					$row->user_modified == $this->authentication->expose_user_last_mod( $this->session->userdata('auth_identifier') )
+				)
+				{
+					$this->load->vars( array( 'reauthenticated' => TRUE ) );
+
+					return TRUE;
+				}
+			}
+
+			$this->load->vars( array( 'reauthenticated' => FALSE ) );
+		}
+
+		return FALSE;
 	}
 
 	// --------------------------------------------------------------

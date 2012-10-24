@@ -164,8 +164,7 @@ class MY_Model extends CI_Model {
 	 * Whatever the case may be, reauthentication makes the logged in 
 	 * user provide a good username and password to proceed.
 	 *
-	 * @param   string  the username or email address to confirm
-	 * @param   string  the password to confirm
+	 * @param   bool  to use simple login form validation (FALSE if you provide a different set)
 	 * @return  bool
 	 */
 	public function reauthenticate( $stand_alone = TRUE )
@@ -199,9 +198,9 @@ class MY_Model extends CI_Model {
 				$hashed_pwd = $this->authentication->hash_passwd( set_value('login_pass'), $row->user_salt );
 
 				/**
-				 * Reauthentication isn't quite as vigorous as a login,
-				 * because we will assume their is a lower risk based
-				 * on the fact that the user is already logged in.
+				 * Reauthentication checks aren't quite as rigorous as a 
+				 * real login, because we will assume there is a lower risk 
+				 * based on the fact that the user is already logged in.
 				 */
 				if(
 					// If the password matches

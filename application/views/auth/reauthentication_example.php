@@ -15,7 +15,7 @@
 <h1>Reauthentication Example</h1>
 
 <?php
-
+// Show a confirmation if reauthentication was successful
 if( isset( $validation_passed ) && isset( $reauthenticated ) && $reauthenticated === TRUE )
 {
 	echo '

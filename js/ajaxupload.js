@@ -2,6 +2,9 @@
  * AJAX Upload ( http://valums.com/ajax-upload/ ) 
  * Copyright (c) Andrew Valums
  * Licensed under the MIT license 
+ *
+ * THIS IS A MODIFIED VERSION !!!
+ * SEE CODE COMMENTS @ STARTING LINE 620
  */
 (function () {
     /**
@@ -613,12 +616,29 @@
                             doc.normalize();
                             response = doc.body.firstChild.firstChild.nodeValue;
                         }
-                        
-                        if (response) {
-                            response = eval("(" + response + ")");
-                        } else {
+
+                        /**
+                         * CUSTOM MODIFICATION 
+                         * 
+                         * This is my custom hack. Checks that json is not corrupt,
+                         * and allows for an error status and message to be passed
+                         * to the browser, instead of failing miserably.
+                         */
+                        if( response ){
+                            try
+                            {
+                                var response = JSON.parse(response);
+                            }
+                            catch(e)
+                            {
+                                response = eval("({'status':'error','message':'Error: Corrupt Server Response'})");
+                            }
+                        }else{
                             response = {};
                         }
+                        /**
+                         * MODIFICATION END
+                         */
                     }
                 } else {
                     // response is a xml document

@@ -97,7 +97,7 @@ class MY_Controller extends CI_Controller
 		 */
 		if( ENVIRONMENT != 'production' )
 		{
-			include APPPATH . 'libraries/ChromePhp.php';
+			include_once APPPATH . 'libraries/ChromePhp.php';
 		}
 
 		/**

@@ -219,7 +219,8 @@ function current_url( $requested_lang = 'english' )
 		$url = $url_parts['scheme'] . '://' . $replacement . $url;
 	}
 
-	return $url;
+	// Return the current URL, making sure to attach any query string that may exist
+	return ( $_SERVER['QUERY_STRING'] ) ? $url . '?' . $_SERVER['QUERY_STRING'] : $url;
 }
 
 // --------------------------------------------------------------

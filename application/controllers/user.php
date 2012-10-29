@@ -436,6 +436,37 @@ class User extends MY_Controller {
 	// --------------------------------------------------------------
 
 	/**
+	 * This login method only serves to redirect a user to a 
+	 * location once they have successfully logged in. It does
+	 * not attempt to confirm that the user has permission to 
+	 * be on the page they are being redirected to.
+	 *
+	 * This method serves no real purpose for pages that are 
+	 * inside the Community Auth application. It is currently 
+	 * being used in a situation where authentication redirects
+	 * the user outside of Community Auth.
+	 *
+	 * The location of the redirect should be supplied as a 
+	 * query string var named "redirect".
+	 */
+	public function login()
+	{
+		if( $this->require_min_level(1) )
+		{
+			if( $this->input->get('redirect') )
+			{
+				redirect( $this->input->get('redirect') );
+			}
+			else
+			{
+				redirect( secure_site_url('user') );
+			}
+		}
+	}
+
+	// --------------------------------------------------------------
+
+	/**
 	 * Log out
 	 */
 	public function logout()

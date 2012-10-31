@@ -42,9 +42,10 @@
 			$.ajax({
 				url: $('#update_image_order_url').val(),
 				type: 'POST',
+				cache: false,
 				data: post_data,
 				dataType: 'json',
-				success: function( response ){
+				success: function(response, textStatus, jqXHR){
 
 					// Renew tokens
 					$('input[name="token"]').val( response.token );
@@ -55,6 +56,9 @@
 						$('#status-bar').css('display', 'block');
 						$('#status-bar').html('<p>' + response.status + '</p>').delay(2500).fadeOut('slow');
 					}
+				},
+				error: function(jqXHR, textStatus, errorThrown){
+					alert('Error: Server Connectivity Error.\nHTTP Error: ' + jqXHR.status + ' ' + errorThrown);
 				}
 			});
 		},

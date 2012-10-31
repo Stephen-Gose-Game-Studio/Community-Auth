@@ -27,10 +27,11 @@ $(document).ready(function(){
 		// POST
 		$.ajax({
 			type: 'post',
+			cache: false,
 			url: $('#ajax_url').val(),
 			data: post_vars,
 			dataType: 'json',
-			success: function(response){
+			success: function(response, textStatus, jqXHR){
 				if(response.status == 'success'){
 					// Update the dropdowns and tokens
 					$('#make').html(response.make);
@@ -40,6 +41,9 @@ $(document).ready(function(){
 				}else{
 					alert(response.message);
 				}
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				alert('Error: Server Connectivity Error.\nHTTP Error: ' + jqXHR.status + ' ' + errorThrown);
 			}
 		});
 	});

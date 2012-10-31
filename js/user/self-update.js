@@ -104,9 +104,10 @@
 		$.ajax({
 			type: 'post',
 			url: $('#delete_url').val(),
+			cache: false,
 			data: post_vars,
 			dataType: 'json',
-			success: function(response){
+			success: function(response, textStatus, jqXHR){
 				if(response.status == 'success'){
 					// Hide the delete link
 					$('#delete-profile-image').hide();
@@ -118,6 +119,9 @@
 				// update the form token(s)
 				$('input[name="token"]').val(response.token);
 				$('input[name="' + ci_csrf_token_name + '"]').val( response.ci_csrf_token );
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				alert('Error: Server Connectivity Error.\nHTTP Error: ' + jqXHR.status + ' ' + errorThrown);
 			}
 		});
 	});

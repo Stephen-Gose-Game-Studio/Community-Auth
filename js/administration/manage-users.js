@@ -64,32 +64,38 @@
 		post_data['search_in'] = $('#search_in option:selected').val();
 		post_data['search_for'] = $('#search_for').val();
 
-		$.post( 
-			this_url, 
-			post_data, 
-			function(data){
-				if(data.test == 'success'){
+		$.ajax({
+			type: 'post',
+			cache: false,
+			url: this_url,
+			data: post_data,
+			dataType: 'json',
+			success: function(response, textStatus, jqXHR){
+				if(response.test == 'success'){
 
 					// Replace table body with updated set of users
-					$('tbody').empty().append(data.table_content);
+					$('tbody').empty().append(response.table_content);
 
 					// Make sure to show the delete column
 					$('.delete-column').show();
 
 					// Replace pagination links
-					$('#pagination p').empty().append(data.pagination_links);
+					$('#pagination p').empty().append(response.pagination_links);
 
 					// Update form token and CI CSRF token
-					$('input[name="token"]').val( data.token );
-					$('input[name="' + ci_csrf_token_name + '"]').val( data.ci_csrf_token );
+					$('input[name="token"]').val( response.token );
+					$('input[name="' + ci_csrf_token_name + '"]').val( response.ci_csrf_token );
 				}else{
 
 					// Show error message
-					alert(data.message);
+					alert(response.message);
 				}
 			},
-			'json'
-		);
+			error: function(jqXHR, textStatus, errorThrown){
+				alert('Error: Server Connectivity Error.\nHTTP Error: ' + jqXHR.status + ' ' + errorThrown);
+			}
+		});
+
 	});
 
 	$(document).on('click', '.delete-img', function(e){

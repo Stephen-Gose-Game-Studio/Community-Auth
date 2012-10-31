@@ -40,7 +40,7 @@
 	}
 
 	// jQuery is always loaded
-	echo script_tag( '//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js' ) . "\n";
+	echo script_tag( '//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js' ) . "\n";
 
 	// Add any additional javascript
 	if( isset( $javascripts ) )

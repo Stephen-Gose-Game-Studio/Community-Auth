@@ -2,12 +2,12 @@
 /**
  * Community Auth - Init Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -51,7 +51,6 @@ class Init extends MY_Controller {
 
 		// Load resources
 		$this->load->model('user_model');
-		$this->load->library('csrf');
 
 		// Get the admin user level number
 		$this->admin_user_level = $this->authentication->levels['admin'];
@@ -74,7 +73,7 @@ class Init extends MY_Controller {
 		if( ! config_item('disable_installer') )
 		{
 			// Check if a valid form submission has been made
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				if( 
 					// If there are already tables created

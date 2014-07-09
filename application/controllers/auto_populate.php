@@ -2,12 +2,12 @@
 /**
  * Community Auth - Auto Populate Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -26,7 +26,6 @@ class Auto_populate extends MY_Controller {
 		parent::__construct();
 
 		// Load common resources
-		$this->load->library('csrf');
 		$this->load->model( 'auto_populate_model', 'autopop' );
 	}
 
@@ -42,7 +41,7 @@ class Auto_populate extends MY_Controller {
 			// Get the vehicle types
 			$view_data['types'] = $this->autopop->get_types();
 
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				if( $this->input->post('type') )
 				{
@@ -51,6 +50,11 @@ class Auto_populate extends MY_Controller {
 					if( $this->input->post('make') )
 					{
 						$view_data['models'] = $this->autopop->get_models_in_make();
+
+						if( $this->input->post('model') )
+						{
+							$view_data['colors'] = $this->autopop->get_colors_in_model();
+						}
 					}
 				}
 			}
@@ -76,7 +80,7 @@ class Auto_populate extends MY_Controller {
 	{
 		if( $this->require_min_level(1) )
 		{
-			if( $this->input->is_ajax_request() && $this->csrf->token_match )
+			if( $this->input->is_ajax_request() && $this->tokens->match )
 			{
 				// Load resources
 				$this->config->load( 'auto_populate/' . $type );
@@ -87,17 +91,9 @@ class Auto_populate extends MY_Controller {
 				// Count the levels
 				$levels_count = count( $config['levels'] );
 
-				// Start with some empty arrays
-				for( $x = 2; $x <= $levels_count; $x++ )
-				{
-					$options_data[$x] = array();
-				}
-
 				if( $this->input->post( $config['levels'][0] ) )
 				{
 					$this->_build_dropdown_data( $config );
-
-					$this->dropdown_data = array_merge( $options_data, $this->dropdown_data );
 
 					$this->recursion = 0;
 
@@ -114,7 +110,7 @@ class Auto_populate extends MY_Controller {
 				}
 
 				$this->options_output['status'] = 'success';
-				$this->options_output['token'] = $this->csrf->token;
+				$this->options_output['token'] = $this->tokens->token();
 				$this->options_output['ci_csrf_token'] = $this->security->get_csrf_hash();
 
 				echo json_encode( $this->options_output );
@@ -195,7 +191,7 @@ class Auto_populate extends MY_Controller {
 		$data_key = $this->recursion + 2;
 
 		$this->options_output[$config['levels'][$this->recursion + 1]] = '';
-		
+
 		if( ! empty( $this->dropdown_data[$data_key] ) )
 		{
 			foreach( $this->dropdown_data[$data_key] as $k => $v )

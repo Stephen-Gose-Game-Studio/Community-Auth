@@ -2,12 +2,12 @@
 /**
  * Community Auth - Administration Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -34,9 +34,6 @@ class Administration extends MY_Controller {
 		// Make sure an admin or manager is logged in. (showing how to log in by group)
 		if( $this->require_group('employees') )
 		{
-			// Load resources
-			$this->load->library('csrf');
-
 			$view_data['roles'] = $this->authentication->roles;
 
 			if( ! empty( $type ) )
@@ -52,7 +49,7 @@ class Administration extends MY_Controller {
 				}
 
 				// Check if a valid form submission has been made
-				if( $this->csrf->token_match )
+				if( $this->tokens->match )
 				{
 					// Create the user
 					$this->load->model('user_model');
@@ -123,7 +120,6 @@ class Administration extends MY_Controller {
 		if( $this->require_role('admin,manager') )
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->model('user_model');
 			$this->load->library('pagination');
 
@@ -131,7 +127,7 @@ class Administration extends MY_Controller {
 			if( $this->input->is_ajax_request() )
 			{
 				// If form token matches
-				if( $this->csrf->token_match )
+				if( $this->tokens->match )
 				{
 					// Get table and pagination content
 					$this->_manage_users_table_content( $page, 'json' );
@@ -224,7 +220,7 @@ class Administration extends MY_Controller {
 
 			// Add success confirmation, token, and CI csrf token to the response
 			$view_data['test'] = 'success';
-			$view_data['token'] = $this->csrf->token;
+			$view_data['token'] = $this->tokens->token();
 			$view_data['ci_csrf_token'] = $this->security->get_csrf_hash();
 
 			// Send the ajax response
@@ -252,7 +248,6 @@ class Administration extends MY_Controller {
 		if( $this->require_role('admin,manager') )
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->model('user_model');
 
 			// Must not be a user trying to delete themeselves
@@ -261,16 +256,16 @@ class Administration extends MY_Controller {
 				// If an ajax request
 				if( $this->input->is_ajax_request() )
 				{
-					// Must pass CSRF token match and delete_user must return TRUE
+					// Must pass token match and delete_user must return TRUE
 					if( 
-						$this->csrf->token_match && 
+						$this->tokens->match && 
 						$this->user_model->delete_user( $user_to_delete, $this->auth_level )
 					)
 					{
 						// Send success message back
 						$response = array(
 							'test'          => 'success',
-							'token'         => $this->csrf->token,
+							'token'         => $this->tokens->token(),
 							'ci_csrf_token' => $this->security->get_csrf_hash()
 						);
 					}
@@ -312,7 +307,6 @@ class Administration extends MY_Controller {
 		if( $this->require_role('admin,manager') )
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->library('encrypt');
 			$this->load->model('user_model');
 			$this->config->load('uploads_manager');
@@ -337,7 +331,7 @@ class Administration extends MY_Controller {
 			/*
 			 * Check if form posted
 			 */
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				// Update the user
 				$this->user_model->update_user( $role, $the_user, 'update_user' );
@@ -399,11 +393,8 @@ class Administration extends MY_Controller {
 		{
 			if( config_item('deny_access') > 0 )
 			{
-				// Load resources
-				$this->load->library('csrf');
-
 				// If POST, do delete or addition of IP
-				if( $this->csrf->token_match )
+				if( $this->tokens->match )
 				{
 					$this->auth_model->process_denial();
 				}

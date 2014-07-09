@@ -2,12 +2,12 @@
 /**
  * Community Auth - MY_form_helper
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -53,9 +53,9 @@ function form_open($action = '', $attributes = '', $hidden = array())
 	}
 
 	// Add MY CSRF token if MY CSRF library is loaded
-	if( $CI->load->is_loaded('csrf') AND ! ( strpos( $action, if_secure_base_url() ) === FALSE OR strpos( $form, 'method="get"' ) ) )
+	if( $CI->load->is_loaded('tokens') AND ! ( strpos( $action, if_secure_base_url() ) === FALSE OR strpos( $form, 'method="get"' ) ) )
 	{
-		$hidden[ $CI->csrf->token_name ] = $CI->csrf->token;
+		$hidden[ $CI->tokens->name ] = $CI->tokens->token();
 	}
 
 	if (is_array($hidden) AND count($hidden) > 0)

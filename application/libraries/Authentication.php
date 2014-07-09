@@ -2,12 +2,12 @@
 /**
  * Community Auth - Authentication Library
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -93,26 +93,25 @@ class Authentication
 	 */
 	public function user_status( $requirement )
 	{
-		$string      = $this->CI->input->post('login_string');
-		$password    = $this->CI->input->post('login_pass');
-		$form_token  = $this->CI->input->post('login_token');
-		$flash_token = $this->CI->session->flashdata('login_token');
+		$string     = $this->CI->input->post('login_string');
+		$password   = $this->CI->input->post('login_pass');
+		$form_token = $this->CI->input->post('login_token');
+		$token_jar  = $this->CI->tokens->jar;
 
 		// If the request resembles a login attempt in any way
 		if(
-			$string      !== FALSE OR 
-			$password    !== FALSE OR 
-			$form_token  !== FALSE OR 
-			$flash_token !== FALSE 
+			$string     !== FALSE OR 
+			$password   !== FALSE OR 
+			$form_token !== FALSE
 		)
 		{
 			// Log as long as error logging threshold allows for debugging
 			log_message(
 				'debug',
-				"\n string      = " . $string .
-				"\n password    = " . $password .
-				"\n form_token  = " . $form_token .
-				"\n flash_token = " . $flash_token
+				"\n string     = " . $string .
+				"\n password   = " . $password .
+				"\n form_token = " . $form_token .
+				"\n token_jar  = " . json_encode( $token_jar )
 			);
 		}
 
@@ -128,15 +127,21 @@ class Authentication
 
 		// If this is a login attempt, all values must not be empty
 		else if( 
-			$string      !== FALSE && 
-			$password    !== FALSE && 
-			$form_token  !== FALSE && 
-			$flash_token !== FALSE 
+			$string     !== FALSE && 
+			$password   !== FALSE && 
+			$form_token !== FALSE && 
+			! empty( $token_jar )
 		)
 		{
 			// Verify that the form token and flash session token are the same
-			if( $form_token == $flash_token )
+			if( $this->CI->tokens->token_check( 'login_token', TRUE ) )
 			{
+				// Must make form processing at the destination does not think it posted to.
+				$this->CI->tokens->match = FALSE;
+
+				// Make sure that the token name is changed, in case there is another form.
+				$this->CI->tokens->name = config_item('token_name');
+
 				// Attempt login with posted values and return either the user's data, or FALSE
 				if( $auth_data = $this->login( $requirement, $string, $password ) )
 				{
@@ -304,6 +309,9 @@ class Authentication
 			}
 			else
 			{
+				// If session ID was regenerated, we need to update the user record
+				$this->CI->auth_model->update_user_session_id( $auth_data->user_id );
+
 				// Send the auth data back to the controller
 				return $auth_data;
 			}
@@ -471,6 +479,9 @@ class Authentication
 
 		// Delete the http user cookie
 		delete_cookie( config_item('http_user_cookie_name') );
+
+		// Delete the https tokens cookie
+		delete_cookie( config_item('https_tokens_name') );
 	}
 
 	// --------------------------------------------------------------
@@ -597,18 +608,26 @@ class Authentication
 	
 	/**
 	 * Setup session, HTTP user cookie, and remember me cookie 
-	 * during a successful login attempt.
+	 * during a successful login attempt. Redirect is specified here.
 	 *
 	 * @param   obj  the user record
 	 * @return  void
 	 */
 	private function _maintain_state( $auth_data )
 	{
+		// Redirect to specified page, or home page if none provided
+		$redirect = $this->CI->input->get('redirect')
+			? urldecode( $this->CI->input->get('redirect') ) 
+			: '';
+
+		$url = USE_SSL === 1 
+			? secure_site_url( $redirect ) 
+			: site_url( $redirect );
+
+		header( "Location: " . $url, TRUE, 302 );
+
 		// Store login time in database and cookie
 		$login_time = time();
-
-		// Update user record in database
-		$this->CI->auth_model->login_update( $auth_data->user_id, $login_time );
 
 		/**
 		 * Since the session cookie needs to be able to use
@@ -685,6 +704,12 @@ class Authentication
 				$login_time
 			)
 		);
+
+		// For security, force regenerate the session ID
+		$session_id = $this->CI->session->sess_update( TRUE );
+
+		// Update user record in database
+		$this->CI->auth_model->login_update( $auth_data->user_id, $login_time, $session_id );
 	}
 	
 	// -----------------------------------------------------------------------

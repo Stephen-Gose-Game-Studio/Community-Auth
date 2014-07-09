@@ -2,10 +2,10 @@
  * Community Auth - self-update.js
  * @ requires jQuery
  *
- * Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
+ * Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
  *
  * Licensed under the BSD licence:
- * http://http://www.opensource.org/licenses/BSD-3-Clause
+ * http://www.opensource.org/licenses/BSD-3-Clause
  */
  $(document).ready(function(){
 	

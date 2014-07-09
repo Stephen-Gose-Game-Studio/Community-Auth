@@ -2,12 +2,12 @@
 /**
  * Community Auth - Custom Uploader Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -45,9 +45,6 @@ class Custom_uploader extends MY_Controller {
 	 */
 	public function uploader_controls()
 	{
-		// Load resources
-		$this->load->library('csrf');
-
 		// Make sure anyone is logged in
 		if( $this->require_min_level(1) )
 		{
@@ -62,7 +59,7 @@ class Custom_uploader extends MY_Controller {
 
 			$data = array(
 				'javascripts' => array(
-					'//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js',
+					'//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js',
 					'js/ajaxupload.js',
 					'js/custom_uploader/uploader-controls.js',
 				),
@@ -80,13 +77,10 @@ class Custom_uploader extends MY_Controller {
 	 */
 	public function update_image_order()
 	{
-		// Load resources
-		$this->load->library('csrf');
-
 		// Make sure anyone is logged in
 		if( $this->require_min_level(1) )
 		{
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				if( $image_data = $this->input->post('image_data') )
 				{
@@ -95,7 +89,7 @@ class Custom_uploader extends MY_Controller {
 					if( $model_response = $this->uploads_model->save_image_data( $this->auth_user_id, $image_data ) )
 					{
 						$response['status']        = 'Image Order Updated';
-						$response['token']         = $this->csrf->token;
+						$response['token']         = $this->tokens->token();
 						$response['ci_csrf_token'] = $this->security->get_csrf_hash();
 					}
 					else
@@ -111,13 +105,13 @@ class Custom_uploader extends MY_Controller {
 					 * We need to update the tokens when there is no image data
 					 * because when all images have been deleted, $image_data = FALSE
 					 */
-					$response['token']         = $this->csrf->token;
+					$response['token']         = $this->tokens->token();
 					$response['ci_csrf_token'] = $this->security->get_csrf_hash();
 				}
 			}
 			else
 			{
-				$response['status'] = 'Error: No Token Match - ' . $this->csrf->posted_token . ' != ' . $this->csrf->current_token;
+				$response['status'] = 'Error: No Token Match - ' . $this->tokens->posted_value . ' != ' . $this->tokens->current_token;
 			}
 
 			echo json_encode( $response );
@@ -135,11 +129,10 @@ class Custom_uploader extends MY_Controller {
 		if( $this->require_min_level(1) )
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->helper('file');
 
 			// Make sure the form token matches
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				// Make sure we have the appropriate post variable
 				if( $image_data = $this->input->post('src') )
@@ -150,7 +143,7 @@ class Custom_uploader extends MY_Controller {
 					if( strpos( $image_data, $user_dir ) !== FALSE )
 					{
 						// Remove scheme and domain from the src
-						$file_location = str_replace( base_url(), '', $image_data );
+						$file_location = str_replace( if_secure_base_url(), '', $image_data );
 
 						// Add path to base file location
 						$uploaded_file = FCPATH . $file_location;
@@ -195,7 +188,7 @@ class Custom_uploader extends MY_Controller {
 							{
 								$response = array(
 									'status'        => 'Image Deleted',
-									'token'         => $this->csrf->token,
+									'token'         => $this->tokens->token(),
 									'ci_csrf_token' => $this->security->get_csrf_hash()
 								);
 							}
@@ -212,7 +205,7 @@ class Custom_uploader extends MY_Controller {
 							{
 								$response = array(
 									'status'        => 'Image Deleted',
-									'token'         => $this->csrf->token,
+									'token'         => $this->tokens->token(),
 									'ci_csrf_token' => $this->security->get_csrf_hash()
 								);
 							}

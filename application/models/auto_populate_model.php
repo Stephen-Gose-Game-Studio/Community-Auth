@@ -2,12 +2,12 @@
 /**
  * Community Auth - Auto_populate_model Model
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  *
  *
@@ -95,6 +95,33 @@ class Auto_populate_model extends CI_Model {
 
 		$this->db->where('type',$type);
 		$this->db->where('make',$make);
+
+		$query = $this->db->get( config_item('auto_populate_table') );
+
+		if( $query->num_rows() > 0 )
+		{
+			return $query->result_array();
+		}
+
+		return FALSE;
+	}
+
+	// --------------------------------------------------------------
+
+	/**
+	 * Method to query database for vehicle colors.
+	 */
+	public function get_colors_in_model()
+	{
+		$type = $this->input->post('type');
+		$make = $this->input->post('make');
+		$model = $this->input->post('model');
+
+		$this->db->select('color');
+
+		$this->db->where('type',$type);
+		$this->db->where('make',$make);
+		$this->db->where('model',$model);
 
 		$query = $this->db->get( config_item('auto_populate_table') );
 

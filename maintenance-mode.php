@@ -2,12 +2,12 @@
 /**
  * Community Auth - Maintenance Mode Page
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
  
@@ -42,7 +42,7 @@ header('Retry-After: 7200');
 			</div>
 		</div>
 		<div class="footer">
-			<p>Copyright (c) 2011 - 2012 &bull; Robert B. Gottier &bull; <a href="http://brianswebdesign.com">Brian's Web Design - Temecula, CA</a></p>
+			<p>Copyright (c) 2011 - <?php echo date('Y'); ?> &bull; Robert B. Gottier &bull; <a href="http://brianswebdesign.com">Brian's Web Design - Temecula, CA</a></p>
 		</div>
 	</body>
 </html>

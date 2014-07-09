@@ -2,12 +2,12 @@
 /**
  * Community Auth - Register Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -32,13 +32,12 @@ class Register extends MY_Controller {
 	public function index()
 	{
 		// Load resources
-		$this->load->library('csrf');
 		$this->load->model('registration_model');
 
 		$reg_mode = $this->registration_model->get_reg_mode();
 
 		// Check to see if there was a registration submission
-		if( $this->csrf->token_match )
+		if( $this->tokens->match )
 		{
 			// If mode #1, registration allows for instant user creation without verification or approval.
 			if( $reg_mode == 1 )
@@ -66,37 +65,24 @@ class Register extends MY_Controller {
 					// Send email to registrant to confirm email address
 					if( $reg_mode == 2 )
 					{
-						$this->email->quick_email(
-							// Sender's Email Address
-							config_item('no_reply_email_address'),
-							// Sender's Name
-							WEBSITE_NAME,
-							// Recipient's Email Address
-							set_value('user_email'),
-							// Subject of Email
-							WEBSITE_NAME . ' - Registration - ' . date("M j, Y"),
-							// Email Template
-							'email_templates/registration-confirmation-registrant',
-							// Template View Data
-							array( 'registration_id' => $registration_id )
-						);
+						$this->email->quick_email( array(
+							'subject'        => WEBSITE_NAME . ' - Registration - ' . date("M j, Y"),
+							'email_template' => 'email_templates/registration-confirmation-registrant',
+							'from_name'      => 'no_reply_email_config',
+							'template_data'  => array( 'registration_id' => $registration_id ),
+							'to'             => set_value('user_email')
+						) );
 					}
 
 					// Send email to admin to inform of pending registration
 					else
 					{
-						$this->email->quick_email(
-							// Sender's Email Address
-							config_item('no_reply_email_address'),
-							// Sender's Name
-							WEBSITE_NAME,
-							// Recipient's Email Address
-							config_item('registration_review_email_address'),
-							// Subject of Email
-							WEBSITE_NAME . ' - Registration - ' . date("M j, Y"),
-							// Email Template
-							'email_templates/registration-notification-admin'
-						);
+						$this->email->quick_email( array(
+							'subject'        => WEBSITE_NAME . ' - Registration - ' . date("M j, Y"),
+							'email_template' => 'email_templates/registration-notification-admin',
+							'from_name'      => 'no_reply_email_config',
+							'to'             => config_item('registration_review_email_address')
+						) );
 					}
 				}
 			}
@@ -146,11 +132,10 @@ class Register extends MY_Controller {
 		if( $this->require_role('admin') )
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->model('registration_model');
 
 			// If there was a form submission to change modes
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				// Change the mode and display the confirmation message
 				if( $this->registration_model->set_reg_mode( (int) $this->input->post('reg_setting') ) === TRUE )
@@ -179,7 +164,6 @@ class Register extends MY_Controller {
 		if( $this->require_role('admin,manager') )
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->model('registration_model');
 
 			$reg_mode = $this->registration_model->get_reg_mode();
@@ -188,7 +172,7 @@ class Register extends MY_Controller {
 			if( $reg_mode === '2' || $reg_mode === '3' )
 			{
 				// If registration mode is #2 or #3 and there was a approval or delete submission
-				if( $this->csrf->token_match )
+				if( $this->tokens->match )
 				{
 					// Create an array of registration IDs to either approve or delete
 					$ids = array();
@@ -215,18 +199,12 @@ class Register extends MY_Controller {
 
 							foreach( $email_addresses as $email_address )
 							{
-								$this->email->quick_email(
-									// Sender's Email Address
-									config_item('no_reply_email_address'),
-									// Sender's Name
-									WEBSITE_NAME,
-									// Recipient's Email Address
-									$email_address,
-									// Subject of Email
-									WEBSITE_NAME . ' - Registration Approved - ' . date("M j, Y"),
-									// Email Template
-									'email_templates/registration-approved-user'
-								);
+								$this->email->quick_email( array(
+									'subject'        => WEBSITE_NAME . ' - Registration Approved - ' . date("M j, Y"),
+									'email_template' => 'email_templates/registration-approved-user',
+									'from_name'      => 'no_reply_email_config',
+									'to'             => $email_address
+								) );
 							}
 						}
 					}

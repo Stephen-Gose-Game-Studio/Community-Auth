@@ -2,12 +2,12 @@
 /**
  * Community Auth - Screenshots View
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 ?>
@@ -21,47 +21,47 @@
 
 $images = array(
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/init-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/init-sm.jpg',
 		'alt' => 'Installation'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/create_user-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/create_user-sm.jpg',
 		'alt' => 'User Creation'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/manage_users-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/manage_users-sm.jpg',
 		'alt' => 'User Management'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/deny_access-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/deny_access-sm.jpg',
 		'alt' => 'Deny Access'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/update_user-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/update_user-sm.jpg',
 		'alt' => 'User Update'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/self_update-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/self_update-sm.jpg',
 		'alt' => 'My Profile'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/registration_settings-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/registration_settings-sm.jpg',
 		'alt' => 'Registration Settings'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/pending_registrations-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/pending_registrations-sm.jpg',
 		'alt' => 'Pending Registrations'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/custom_uploader-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/custom_uploader-sm.jpg',
 		'alt' => 'Custom Uploader'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/auto_populate-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/auto_populate-sm.jpg',
 		'alt' => 'Auto Population of Dropdowns'
 	),
 	array(
-		'src' => 'http://brianswebdesign.com/img/community_auth_screenshots/category_menu-sm.jpg',
+		'src' => 'http://images.brianswebdesign.com/community_auth_screenshots/category_menu-sm.jpg',
 		'alt' => 'Category Menu'
 	)
 );

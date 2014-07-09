@@ -2,12 +2,12 @@
 /**
  * Community Auth - Upload Library Extension
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -374,7 +374,7 @@ class MY_Upload extends CI_Upload {
 		}
 
 		// Return the URL to the image
-		return base_url( $file_url );
+		return if_secure_base_url( $file_url );
 	}
 
 	// --------------------------------------------------------------------

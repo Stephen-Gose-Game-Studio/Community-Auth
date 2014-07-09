@@ -2,12 +2,12 @@
 /**
  * Community Auth - Uploads Manager Controller ( For AJAX Uploads )
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -90,11 +90,8 @@ class Uploads_manager extends MY_Controller {
 
 		if( $auth_roles !== FALSE && $this->require_role( $auth_roles ) )
 		{
-			// Use CSRF protection
-			$this->load->library('csrf');
-
 			// Check if a valid form submission has been made
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				$bridge_type = $this->bridge_type;
 
@@ -104,10 +101,10 @@ class Uploads_manager extends MY_Controller {
 			{
 				// Error: No Token Match
 				$response['status'] = 'error';
-				$response['issue']  = 'No Token Match. Please reload the page. ' . $this->csrf->posted_token . ' != ' . $this->csrf->current_token;
+				$response['issue']  = 'No Token Match. Please reload the page. ' . $this->tokens->posted_value . ' != ' . $this->tokens->current_token;
 			}
 
-			$response['token'] = $this->csrf->token;
+			$response['token'] = $this->tokens->token();
 			$response['ci_csrf_token'] = $this->security->get_csrf_hash();
 
 			echo json_encode( $response );

@@ -2,12 +2,12 @@
 /**
  * Community Auth - Template Content View
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 ?><!DOCTYPE html>
@@ -71,7 +71,7 @@
 				}
 
 				// Show the login / logout ...
-				echo ( isset( $_user_first_name ) ) ? 'Welcome, ' . $_user_first_name . ' &bull; ' . secure_anchor('user','User Index') . ' &bull; ' . secure_anchor('user/logout','Logout') : secure_anchor('register','Register') . ' &bull; ' . secure_anchor('user','Login');
+				echo ( isset( $_user_first_name ) ) ? 'Welcome, ' . $_user_first_name . ' &bull; ' . secure_anchor('user','User Index') . ' &bull; ' . secure_anchor('user/logout','Logout') : secure_anchor('register','Register') . ' &bull; ' . secure_anchor( LOGIN_PAGE,'Login');
 			?>
 		</div>
 	</div>
@@ -121,7 +121,7 @@
 					</li>
 					<li>
 						<?php 
-							echo ( $this->uri->segment(1) == 'screenshots' ) ? anchor('screen_shots', 'Screenshots', array( 'id' => 'active' ) ) : anchor('screenshots', 'Screenshots');
+							echo ( $this->uri->segment(1) == 'screenshots' ) ? anchor('screenshots', 'Screenshots', array( 'id' => 'active' ) ) : anchor('screenshots', 'Screenshots');
 						?>
 					</li>
 					<li>

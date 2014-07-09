@@ -2,12 +2,12 @@
 /**
  * Community Auth - MY_Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -153,16 +153,22 @@ class MY_Controller extends CI_Controller
 	 */
 	protected function require_min_level( $level )
 	{
+		// Check if logged in or if login attempt
 		if( $this->auth_data = $this->authentication->user_status( $level ) )
 		{
 			$this->_set_user_variables();
 
 			return TRUE;
 		}
-		else
+
+		// Else check if we need to redirect to the login page
+		else if( $this->uri->uri_string() != LOGIN_PAGE )
 		{
-			$this->_setup_login_form();
+			$this->_redirect_to_login_page();
 		}
+
+		// Else this is a failed login attempt or the login page was loaded
+		return FALSE;
 	}
 
 	// --------------------------------------------------------------
@@ -220,19 +226,49 @@ class MY_Controller extends CI_Controller
 		// Trim off any space chars
 		$role_array = array_map( 'trim', $role_array );
 
+		// Check if logged in or if login attempt
 		if( $this->auth_data = $this->authentication->user_status( $role_array ) )
 		{
 			$this->_set_user_variables();
 
 			return TRUE;
 		}
-		else
+		
+		// Else check if we need to redirect to the login page
+		else if( $this->uri->uri_string() != LOGIN_PAGE )
 		{
-			$this->_setup_login_form();
+			$this->_redirect_to_login_page();
 		}
+
+		// Else this is a failed login attempt or the login page was loaded
+		return FALSE;
 	}
 
 	// --------------------------------------------------------------
+
+	/**
+	 * Redirect to the login page
+	 */
+	private function _redirect_to_login_page()
+	{
+		// Determine the login redirect
+		$redirect = $this->input->get('redirect')
+			? urlencode( $this->input->get('redirect') ) 
+			: urlencode( $this->uri->uri_string() );
+
+		// Redirect to the login form
+		$url = USE_SSL === 1 
+			? secure_site_url( LOGIN_PAGE . '?redirect=' . $redirect ) 
+			: site_url( LOGIN_PAGE . '?redirect=' . $redirect );
+
+		header(
+			'Location: ' . $url,
+			TRUE,
+			302
+		);
+	}
+	
+	// -----------------------------------------------------------------------
 
 	/**
 	 * Function used for allowing a login that isn't required. An example would be
@@ -351,10 +387,12 @@ class MY_Controller extends CI_Controller
 	// --------------------------------------------------------------
 
 	/**
-	 * Output the login form, or show message that max login attempts exceeded.
+	 * Show any login error message.
 	 */
-	private function _setup_login_form()
+	protected function setup_login_form()
 	{
+		$this->tokens->name = 'login_token';
+
 		// Ouput alert-bar message if cookies not enabled
 		$this->check_cookies_enabled('Cookies are required to login. Please enable cookies.');
 
@@ -378,22 +416,6 @@ class MY_Controller extends CI_Controller
 			$view_data['on_hold_message'] = 1;
 		}
 
-		// If not on hold, proceed with caution :)
-		else
-		{
-			// Check if CSRF class already loaded
-			if( $this->load->is_loaded('csrf') )
-			{
-				// If already loaded, reload it
-				$this->csrf->reload( array( 'token_name' => 'login_token' ) );
-			}
-			else
-			{
-				// If not already loaded, load it
-				$this->load->library('csrf', array( 'token_name' => 'login_token' ) );
-			}
-		}
-
 		// Display a login error message if there was a form post
 		if( $this->authentication->login_error === TRUE )
 		{
@@ -401,25 +423,10 @@ class MY_Controller extends CI_Controller
 			$view_data['login_error_mesg'] = 1;
 		}
 
-		// Get form from authentication class / log failed login attempt if applicable
-		$data = array(
-			'title' => WEBSITE_NAME . ' - Login',
-			'javascripts' => array(
-				'js/jquery.passwordToggle-1.1.js',
-				'js/jquery.char-limiter-3.0.0.js',
-				'js/default-char-limiters.js'
-			),
-			'extra_head' => '
-				<script>
-					$(document).ready(function(){
-						$("#show-password").passwordToggle({target:"#login_pass"});
-					});
-				</script>
-			',
-			'content' => $this->load->view( 'auth/login_form', ( isset( $view_data ) ) ? $view_data : '', TRUE )
-		);
-
-		$this->load->view('templates/main_template', $data);
+		if( isset( $view_data ) )
+		{
+			$this->load->vars( $view_data );
+		}
 	}
 
 	// --------------------------------------------------------------

@@ -2,12 +2,12 @@
 /**
  * Community Auth - Auth_model Model
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -102,12 +102,13 @@ class Auth_model extends MY_Model {
 	 * 
 	 * @param  array  the user's user table data 
 	 */
-	public function login_update( $user_id, $login_time )
+	public function login_update( $user_id, $login_time, $session_id )
 	{
 		$data = array(
 			'user_last_login'   => $login_time,
 			'user_login_time'   => $login_time,
-			'user_agent_string' => md5( $this->input->user_agent() )
+			'user_agent_string' => md5( $this->input->user_agent() ),
+			'user_session_id'   => $session_id
 		);
 
 		$this->db->where( 'user_id' , $user_id )
@@ -146,10 +147,25 @@ class Auth_model extends MY_Model {
 		$this->db->where( 'user_modified', $user_last_mod );
 		$this->db->where( 'user_id', $user_id );
 
-		// If multiple devices are allowed to login at the same time, the user_login_time cannot be checked
+		/**
+		 * If multiple devices are allowed to login at the same time, 
+		 * the user_login_time cannot be checked. The session ID is also useless.
+		 */
 		if( config_item('disallow_multiple_logins') === TRUE )
 		{
 			$this->db->where( 'user_login_time', $login_time );
+
+			// If the session ID was NOT regenerated, the session IDs should match
+			if( is_null( $this->session->regenerated_session_id ) )
+			{
+				$this->db->where( 'user_session_id', $this->session->userdata('session_id') );
+			}
+
+			// If it was regenerated, we can only compare the old session ID for this request
+			else
+			{
+				$this->db->where( 'user_session_id', $this->session->pre_regenerated_session_id );
+			}
 		}
 
 		$this->db->limit(1);
@@ -185,6 +201,23 @@ class Auth_model extends MY_Model {
 	}
 
 	// --------------------------------------------------------------
+
+	/**
+	 * Update a user's user record session ID if it was regenerated
+	 */
+	public function update_user_session_id( $user_id )
+	{
+		if( ! is_null( $this->session->regenerated_session_id ) )
+		{
+			$this->db->where( 'user_id', $user_id )
+				->update( 
+					config_item('user_table'),
+					array( 'user_session_id' => $this->session->regenerated_session_id )
+			);
+		}
+	}
+	
+	// -----------------------------------------------------------------------
 
 	/**
 	 * Clear user holds that have expired
@@ -337,19 +370,14 @@ class Auth_model extends MY_Model {
 			// Send an email to 
 			$this->load->library('email');
 			$this->config->load('email');
+			$admin_email_config = config_item('admin_email_config');
 
-			$this->email->quick_email(
-				// Sender's Email Address
-				config_item('no_reply_email_address'),
-				// Sender's Name
-				WEBSITE_NAME,
-				// Recipient's Email Address
-				config_item('admin_email_address'),
-				// Subject of Email
-				WEBSITE_NAME . ' - Excessive Login Attempts Warning - ' . date("M j, Y"),
-				// Email Template
-				'email_templates/excessive-login-attempts'
-			);
+			$this->email->quick_email( array(
+				'subject'        => WEBSITE_NAME . ' - Excessive Login Attempts Warning - ' . date("M j, Y"),
+				'email_template' => 'email_templates/excessive-login-attempts',
+				'from_name'      => 'admin_email_config',
+				'to'             => $admin_email_config['from_email']
+			) );
 
 			if( config_item('deny_access') > 0 )
 			{
@@ -595,7 +623,10 @@ class Auth_model extends MY_Model {
 	 */
 	public function logout( $user_id )
 	{
-		$data = array( 'user_login_time'   => NULL );
+		$data = array( 
+			'user_login_time' => NULL,
+			'user_session_id' => NULL
+		);
 
 		$this->db->where( 'user_id' , $user_id )
 			->update( config_item('user_table') , $data );

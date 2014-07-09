@@ -2,12 +2,12 @@
 /**
  * Community Auth - MY_Encrypt Library
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -15,14 +15,13 @@ class MY_Encrypt extends CI_Encrypt {
 
 	/**
 	 * Constructor
-	 *
-	 * Simply determines whether the mcrypt library exists.
-	 *
 	 */
 	public function __construct()
 	{
 		parent::__construct();
 	}
+
+	// -----------------------------------------------------------------------
 
 	/**
 	 * Get Mcrypt cipher Value
@@ -45,7 +44,49 @@ class MY_Encrypt extends CI_Encrypt {
 		return $this->_mcrypt_cipher;
 	}
 
-	// --------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Save the current encryption settings
+	 */
+	public function save_settings()
+	{
+		$this->saved_settings = array(
+			'encryption_key' => $this->encryption_key,
+			'_mcrypt_cipher' => $this->_mcrypt_cipher,
+			'_mcrypt_mode'   => $this->_mcrypt_mode
+		);
+	}
+	
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Restore the saved encryption settings
+	 */
+	public function restore_settings()
+	{
+		if( ! empty( $this->saved_settings ) )
+		{
+			foreach( $this->saved_settings as $k => $v )
+			{
+				$this->$k = $v;
+			}
+		}
+	}
+	
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Use a set of default encryption settings
+	 */
+	public function use_defaults()
+	{
+		$this->encryption_key = $this->CI->config->item('encryption_key');
+		$this->_mcrypt_cipher = MCRYPT_BLOWFISH;
+		$this->_mcrypt_mode   = MCRYPT_MODE_CBC;
+	}
+	
+	// -----------------------------------------------------------------------
 
 }
 

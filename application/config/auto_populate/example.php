@@ -2,12 +2,12 @@
 /**
  * Community Auth - Example Config for Auto Population of Form Selects
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -19,7 +19,8 @@ $config['example'] = array(
 	'levels' => array(
 		'type',
 		'make',
-		'model'
+		'model',
+		'color'
 	),
 
 	/**
@@ -32,7 +33,8 @@ $config['example'] = array(
 	 */
 	'keys' => array(
 		//'make_id',
-		//'model_id'
+		//'model_id',
+		//'color_id'
 	),
 
 	/**
@@ -42,7 +44,8 @@ $config['example'] = array(
 	 */
 	'methods' => array(
 		'get_makes_in_type',
-		'get_models_in_make'
+		'get_models_in_make',
+		'get_colors_in_model'
 	),
 
 	/**
@@ -52,7 +55,9 @@ $config['example'] = array(
 		// Default option for second dropdown when first is ready
 		'-- Select Type --',
 		// Default option for third dropdown when second is ready
-		'-- Select Make --'
+		'-- Select Make --',
+		// Default option for fourth dropdown when third is ready
+		'-- Select Model --'
 	)
 
 );

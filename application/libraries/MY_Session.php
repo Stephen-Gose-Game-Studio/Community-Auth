@@ -2,12 +2,12 @@
 /**
  * Community Auth - Upload Library Extension
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -19,8 +19,15 @@
  *
  * 2) Remember Me functionality allows the session expiration to be modified
  * if enabled in the config, and if the user selects to be remembered during login.
+ *
+ * 3) Session ID regeneration stores the original ID and new ID, making both
+ * publically accessible. This is important for Community Auth, because
+ * we will now be tying a session ID to a logged in user.
  */
 class MY_Session extends CI_Session {
+
+	public $pre_regenerated_session_id = NULL;
+	public $regenerated_session_id     = NULL;
 
 	private $sess_exists = FALSE;
 
@@ -115,6 +122,70 @@ class MY_Session extends CI_Session {
 		$this->_sess_gc();
 
 		log_message('debug', "Session routines successfully run");
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Update an existing session
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	function sess_update( $force = FALSE )
+	{
+		// We only update the session every five minutes by default
+		if (($this->userdata['last_activity'] + $this->sess_time_to_update) >= $this->now && $force === FALSE )
+		{
+			return FALSE;
+		}
+
+		// Let the old session ID be publically accessible for this request
+		$this->pre_regenerated_session_id = $this->userdata['session_id'];
+
+		// Save the old session id so we know which record to
+		// update in the database if we need it
+		$old_sessid = $this->userdata['session_id'];
+		$new_sessid = '';
+		while (strlen($new_sessid) < 32)
+		{
+			$new_sessid .= mt_rand(0, mt_getrandmax());
+		}
+
+		// To make the session ID even more secure we'll combine it with the user's IP
+		$new_sessid .= $this->CI->input->ip_address();
+
+		// Turn it into a hash
+		$new_sessid = md5(uniqid($new_sessid, TRUE));
+
+		// Let the new session ID be publically accessible for this request
+		$this->regenerated_session_id = $new_sessid;
+
+		// Update the session data in the session data array
+		$this->userdata['session_id'] = $new_sessid;
+		$this->userdata['last_activity'] = $this->now;
+
+		// _set_cookie() will handle this for us if we aren't using database sessions
+		// by pushing all userdata to the cookie.
+		$cookie_data = NULL;
+
+		// Update the session ID and last_activity field in the DB if needed
+		if ($this->sess_use_database === TRUE)
+		{
+			// set cookie explicitly to only have our session data
+			$cookie_data = array();
+			foreach (array('session_id','ip_address','user_agent','last_activity') as $val)
+			{
+				$cookie_data[$val] = $this->userdata[$val];
+			}
+
+			$this->CI->db->query($this->CI->db->update_string($this->sess_table_name, array('last_activity' => $this->now, 'session_id' => $new_sessid), array('session_id' => $old_sessid)));
+		}
+
+		// Write the cookie
+		$this->_set_cookie($cookie_data);
+
+		return $this->userdata['session_id'];
 	}
 
 	// --------------------------------------------------------------------

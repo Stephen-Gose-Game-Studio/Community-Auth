@@ -2,12 +2,12 @@
 /**
  * Community Auth - Login Form View
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -43,7 +43,22 @@ if( ! isset( $on_hold_message ) )
 		';
 	}
 
-	echo form_open( '', array( 'class' => 'std-form', 'style' => 'margin-top:20px;' ) ); 
+	// Redirect to specified page
+	$redirect = $this->input->get('redirect')
+		? '?redirect=' . $this->input->get('redirect') 
+		: '';
+
+	// Redirect to optional login's page
+	if( $redirect == '' && isset( $optional_login ) )
+	{
+		$redirect = '?redirect=' . urlencode( $this->uri->uri_string() );
+	}
+
+	$login_url = USE_SSL === 1 
+		? secure_site_url( LOGIN_PAGE . $redirect ) 
+		: site_url( LOGIN_PAGE . $redirect );
+
+	echo form_open( $login_url, array( 'class' => 'std-form', 'style' => 'margin-top:20px;' ) ); 
 ?>
 
 	<div class="form-column-left">

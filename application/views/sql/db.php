@@ -2,12 +2,12 @@
 /**
  * Community Auth - Installer's SQL View
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 ?>
@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `<?php echo config_item('user_table'); ?>` (
   `user_salt` varchar(32) NOT NULL,
   `user_last_login` int(10) DEFAULT NULL,
   `user_login_time` int(10) DEFAULT NULL,
+  `user_session_id` varchar(40) DEFAULT NULL,
   `user_date` int(10) NOT NULL,
   `user_modified` int(10) NOT NULL,
   `user_agent_string` varchar(32) DEFAULT NULL,
@@ -202,32 +203,77 @@ CREATE TABLE IF NOT EXISTS `<?php echo config_item('auto_populate_table'); ?>` (
   `type` varchar(5) NOT NULL,
   `make` varchar(36) NOT NULL,
   `model` varchar(36) NOT NULL,
+  `color` varchar(36) NOT NULL,
   PRIMARY KEY (`vehicle_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-INSERT INTO `<?php echo config_item('auto_populate_table'); ?>` (`vehicle_id`, `type`, `make`, `model`) VALUES
-(1, 'Car', 'Hyundai', 'Sonata'),
-(2, 'Car', 'Ford', 'Fiesta'),
-(3, 'Truck', 'Toyota', 'Tacoma'),
-(4, 'Car', 'Toyota', 'Tercel'),
-(5, 'Truck', 'Ford', 'F-150'),
-(6, 'Car', 'Honda', 'Civic'),
-(7, 'Car', 'Chevrolet', 'Nova'),
-(8, 'Car', 'Ford', 'Mustang'),
-(9, 'Truck', 'Toyota', 'Tundra'),
-(10, 'Truck', 'Ford', 'F-250'),
-(11, 'Car', 'Hyundai', 'Accent'),
-(12, 'Car', 'Toyota', 'Corolla'),
-(13, 'Car', 'Honda', 'Accord'),
-(14, 'Car', 'Honda', 'Fit'),
-(15, 'Truck', 'Honda', 'Ridgeline'),
-(16, 'Truck', 'Ford', 'Ranger'),
-(17, 'Truck', 'Chevrolet', 'Colorado'),
-(18, 'Truck', 'Chevrolet', 'Silverado'),
-(19, 'Car', 'Chevrolet', 'Impala'),
-(20, 'Car', 'Chevrolet', 'Corvette'),
-(21, 'Car', 'Mazda', 'RX-8'),
-(22, 'Car', 'Mazda', 'Miata');
+INSERT INTO `<?php echo config_item('auto_populate_table'); ?>` (`vehicle_id`, `type`, `make`, `model`, `color`) VALUES
+(1, 'Car', 'Hyundai', 'Sonata', 'Green'),
+(2, 'Car', 'Hyundai', 'Sonata', 'Black'),
+(3, 'Car', 'Hyundai', 'Sonata', 'Blue'),
+(4, 'Car', 'Ford', 'Fiesta', 'White'),
+(5, 'Car', 'Ford', 'Fiesta', 'Silver'),
+(6, 'Car', 'Ford', 'Fiesta', 'Red'),
+(7, 'Truck', 'Toyota', 'Tacoma', 'Black'),
+(8, 'Truck', 'Toyota', 'Tacoma', 'Pink'),
+(9, 'Truck', 'Toyota', 'Tacoma', 'Burgundy'),
+(10, 'Car', 'Toyota', 'Tercel', 'Red'),
+(11, 'Car', 'Toyota', 'Tercel', 'Yellow'),
+(12, 'Car', 'Toyota', 'Tercel', 'White'),
+(13, 'Truck', 'Ford', 'F-150', 'Blue'),
+(14, 'Truck', 'Ford', 'F-150', 'Charcoal'),
+(15, 'Truck', 'Ford', 'F-150', 'Orange'),
+(16, 'Car', 'Honda', 'Civic', 'White'),
+(17, 'Car', 'Honda', 'Civic', 'Green'),
+(18, 'Car', 'Honda', 'Civic', 'Red'),
+(19, 'Car', 'Chevrolet', 'Nova', 'Yellow'),
+(20, 'Car', 'Chevrolet', 'Nova', 'Blue'),
+(21, 'Car', 'Chevrolet', 'Nova', 'Purple'),
+(22, 'Car', 'Ford', 'Mustang', 'Gray'),
+(23, 'Car', 'Ford', 'Mustang', 'Black'),
+(24, 'Car', 'Ford', 'Mustang', 'White'),
+(25, 'Truck', 'Toyota', 'Tundra', 'Red'),
+(26, 'Truck', 'Toyota', 'Tundra', 'Orange'),
+(27, 'Truck', 'Toyota', 'Tundra', 'Yellow'),
+(28, 'Truck', 'Ford', 'F-250', 'Green'),
+(29, 'Truck', 'Ford', 'F-250', 'Blue'),
+(30, 'Truck', 'Ford', 'F-250', 'Purple'),
+(31, 'Car', 'Hyundai', 'Accent', 'Gray'),
+(32, 'Car', 'Hyundai', 'Accent', 'Silver'),
+(33, 'Car', 'Hyundai', 'Accent', 'Black'),
+(34, 'Car', 'Toyota', 'Corolla', 'White'),
+(35, 'Car', 'Toyota', 'Corolla', 'Red'),
+(36, 'Car', 'Toyota', 'Corolla', 'Orange'),
+(37, 'Car', 'Honda', 'Accord', 'Yellow'),
+(38, 'Car', 'Honda', 'Accord', 'Green'),
+(39, 'Car', 'Honda', 'Accord', 'Blue'),
+(40, 'Car', 'Honda', 'Fit', 'Purple'),
+(41, 'Car', 'Honda', 'Fit', 'Gray'),
+(42, 'Car', 'Honda', 'Fit', 'Silver'),
+(43, 'Truck', 'Honda', 'Ridgeline', 'Black'),
+(44, 'Truck', 'Honda', 'Ridgeline', 'White'),
+(45, 'Truck', 'Honda', 'Ridgeline', 'Burgundy'),
+(46, 'Truck', 'Ford', 'Ranger', 'Charcoal'),
+(47, 'Truck', 'Ford', 'Ranger', 'Red'),
+(48, 'Truck', 'Ford', 'Ranger', 'Orange'),
+(49, 'Truck', 'Chevrolet', 'Colorado', 'Yellow'),
+(50, 'Truck', 'Chevrolet', 'Colorado', 'Green'),
+(51, 'Truck', 'Chevrolet', 'Colorado', 'Blue'),
+(52, 'Truck', 'Chevrolet', 'Silverado', 'Purple'),
+(53, 'Truck', 'Chevrolet', 'Silverado', 'Gray'),
+(54, 'Truck', 'Chevrolet', 'Silverado', 'Black'),
+(55, 'Car', 'Chevrolet', 'Impala', 'Pink'),
+(56, 'Car', 'Chevrolet', 'Impala', 'Baby Blue'),
+(57, 'Car', 'Chevrolet', 'Impala', 'Candy Red'),
+(58, 'Car', 'Chevrolet', 'Corvette', 'Black'),
+(59, 'Car', 'Chevrolet', 'Corvette', 'White'),
+(60, 'Car', 'Chevrolet', 'Corvette', 'Tan'),
+(61, 'Car', 'Mazda', 'RX-8', 'Brown'),
+(62, 'Car', 'Mazda', 'RX-8', 'Red'),
+(63, 'Car', 'Mazda', 'RX-8', 'Orange'),
+(64, 'Car', 'Mazda', 'Miata', 'Yellow'),
+(65, 'Car', 'Mazda', 'Miata', 'Green'),
+(66, 'Car', 'Mazda', 'Miata', 'Black');
 
 -- --------------------------------------------------------
 

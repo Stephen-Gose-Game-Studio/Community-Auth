@@ -2,12 +2,12 @@
 /**
  * Community Auth - Authentication Config
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -186,6 +186,24 @@ $config['http_user_cookie_name'] = 'httpUser';
 
 /*
 | -----------------------------------------------------------------
+|				      TOKEN COOKIES CONFIG						
+| -----------------------------------------------------------------
+| This setting allows you to choose the name of the http token cookie,
+| and also the name of the https token cookie.
+|
+| The token jar size is the amount of tokens that can be held in each cookie.
+| 
+| The token name is the name of the form element holding the token value.
+|
+*/
+
+$config['http_tokens_cookie']  = 'httpTokens';
+$config['https_tokens_cookie'] = 'httpsTokens';
+$config['token_jar_size']      = 32;
+$config['token_name']          = 'token';
+
+/*
+| -----------------------------------------------------------------
 |			        SELECTED PROFILE COLUMNS							
 | -----------------------------------------------------------------
 | An array of profile data to select when logging in or checking login.
@@ -200,31 +218,6 @@ $config['selected_profile_columns'] = array(
 	'first_name',
 	'last_name'
 );
-
-/*
-| -----------------------------------------------------------------
-|			CSRF FLASHDATA NAME AND EXPIRATION FOR HTTP*						
-| -----------------------------------------------------------------
-| *These settings only apply to a cookie that is set when "cookie_secure"
-| is set to TRUE in config/config and CSRF is loaded on an HTTP page.
-|
-| The expiration setting sets the expiration for that cookie. The value is the
-| number of seconds you want the cookie to last. Default expiration is 1 hour.
-|
-| The name is the cookie name ... duh!
-|
-| Note: While better than nothing, if you have "cookie_secure" 
-| set to TRUE, it means you have a security certificate, and you 
-| should consider that any page that has a form on it should 
-| probably be an HTTPS page. This cookie offers less protection
-| when compared to the session library, so if you are 
-| using forms on HTTP pages, just know that those forms should 
-| only contain simple data that is not sensitive.
-|
-*/
-
-$config['csrfFd_cookie_name'] = 'csrfFd';
-$config['csrfFd_expiration'] = 3600;
 
 /*
 | -----------------------------------------------------------------

@@ -2,12 +2,12 @@
 /**
  * Community Auth - Contact Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -43,11 +43,8 @@ class Contact extends MY_Controller {
 		// Home page does not require login, but user_name and user_role displayed if logged in
 		$this->is_logged_in();
 
-		// Load Resources
-		$this->load->library('csrf');
-
 		// If POST
-		if( $this->csrf->token_match )
+		if( $this->tokens->match )
 		{
 			// Run the validation
 			$this->load->library('form_validation');
@@ -70,20 +67,13 @@ class Contact extends MY_Controller {
 					$this->load->library('email');
 					$this->config->load('email');
 
-					$this->email->quick_email(
-						// Sender's Email Address
-						config_item('no_reply_email_address'),
-						// Sender's Name
-						WEBSITE_NAME,
-						// Recipient's Email Address
-						config_item('contact_form_recipient_email_address'),
-						// Subject of Email
-						WEBSITE_NAME . ' - Contact Form Submission - ' . date("M j, Y - g:ia"),
-						// Email Template
-						'email_templates/contact',
-						// Template View Data
-						$view_data
-					);
+					$this->email->quick_email( array(
+						'subject'        => WEBSITE_NAME . ' - Contact Form Submission - ' . date("M j, Y - g:ia"),
+						'email_template' => 'email_templates/contact',
+						'from_name'      => 'no_reply_email_config',
+						'template_data'  => $view_data,
+						'to'             => config_item('contact_form_recipient_email_address')
+					) );
 
 					$view_data['confirmation'] = 1;
 

@@ -2,12 +2,12 @@
 /**
  * Community Auth - Reauthentication Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -34,11 +34,8 @@ class Reauthenticate extends MY_Controller{
 	{
 		if( $this->require_min_level(1) )
 		{
-			// Load resources
-			$this->load->library('csrf');
-
 			// Valid form submission
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				/**
 				 * If we were processing a form that contained form

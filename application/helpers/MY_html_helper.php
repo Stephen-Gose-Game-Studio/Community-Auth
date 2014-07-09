@@ -2,12 +2,12 @@
 /**
  * Community Auth - MY_html_helper
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -185,7 +185,7 @@ if ( ! function_exists('script_tag'))
  * @param	mixed
  * @return	string
  */
-function img($src = '', $index_page = FALSE, $base64_encoded = FALSE)
+function img( $src = '', $index_page = FALSE, $base64_encoded = FALSE )
 {
 	$CI =& get_instance();
 
@@ -242,7 +242,23 @@ function img($src = '', $index_page = FALSE, $base64_encoded = FALSE)
 		}
 		else
 		{
-			$img .= " $k=\"$v\"";
+			// If we are on SSL
+			if( $k == 'src' && ! empty( $_SERVER['HTTPS'] ) && strtolower( $_SERVER['HTTPS'] ) !== 'off' )
+			{
+				// If the image is called via http scheme
+				if( stripos( $v, 'https://' ) === FALSE )
+				{
+					$img .= ' ' . $k . '="' . substr( $v, 0, 4 ) . 's' . substr( $v, 4 ) . '"';
+				}
+				else
+				{
+					$img .= " $k=\"$v\"";
+				}
+			}
+			else
+			{
+				$img .= " $k=\"$v\"";
+			}
 		}
 	}
 

@@ -2,12 +2,12 @@
 /**
  * Community Auth - User Controller
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -73,15 +73,8 @@ class User extends MY_Controller {
 		}
 		else
 		{
-			/**
-			 * Waiting until hold status is confirmed to load CSRF,
-			 * because we don't want to give out a new token and set
-			 * the flashdata for nothing
-			 */
-			$this->load->library('csrf');
-
 			// If the form post looks good
-			if( $this->csrf->token_match && $this->input->post('user_email') )
+			if( $this->tokens->match && $this->input->post('user_email') )
 			{
 				if( $user_data = $this->user_model->get_recovery_data( $this->input->post('user_email') ) )
 				{
@@ -119,20 +112,13 @@ class User extends MY_Controller {
 						$this->load->library('email');
 						$this->config->load('email');
 
-						$this->email->quick_email(
-							// Sender's Email Address
-							config_item('user_recovery_email_address'),
-							// Sender's Name
-							WEBSITE_NAME,
-							// Recipient's Email Address
-							$this->input->post('user_email'),
-							// Subject of Email
-							WEBSITE_NAME . ' - User Account Recovery - ' . date("M j, Y"),
-							// Email Template
-							'email_templates/user-recovery',
-							// Template View Data
-							array( 'user_data' => $user_data, 'recovery_code' => $recovery_code )
-						);
+						$this->email->quick_email( array(
+							'subject'        => WEBSITE_NAME . ' - User Account Recovery - ' . date("M j, Y"),
+							'email_template' => 'email_templates/user-recovery',
+							'from_name'      => 'no_reply_email_config',
+							'template_data'  => array( 'user_data' => $user_data, 'recovery_code' => $recovery_code ),
+							'to'             => $this->input->post('user_email')
+						) );
 
 						$view_data['confirmation'] = 1;
 					}
@@ -174,7 +160,6 @@ class User extends MY_Controller {
 		else
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->model('user_model');
 
 			if( 
@@ -231,7 +216,7 @@ class User extends MY_Controller {
 			 * be a user_name if everything else was good.
 			 */
 			if( 
-				$this->csrf->token_match && 
+				$this->tokens->match && 
 				isset( $view_data['user_name'] ) && 
 				$view_data['user_name'] !== FALSE 
 			)
@@ -279,13 +264,12 @@ class User extends MY_Controller {
 		if( $this->require_min_level(1) )
 		{
 			// Load resources
-			$this->load->library('csrf');
 			$this->load->library('encrypt');
 			$this->load->model('user_model');
 			$this->load->library('upload');
 
 			// Check if an update post was made
-			if( $this->csrf->token_match )
+			if( $this->tokens->match )
 			{
 				// Update the user
 				$this->user_model->update_user( $this->auth_role, $this->auth_user_id, 'self_update' );
@@ -344,21 +328,20 @@ class User extends MY_Controller {
 		{
 			// Load resources
 			$this->load->model('user_model');
-			$this->load->library('csrf');
 
 			// If this is an ajax request
 			if( $this->input->is_ajax_request() )
 			{
 				// If CSRF token match and image deleted
 				if( 
-					$this->csrf->token_match && 
+					$this->tokens->match && 
 					$this->_delete_profile_image()
 				)
 				{
 					// Send success message back
 					$response = array(
 						'status'        => 'success',
-						'token'         => $this->csrf->token,
+						'token'         => $this->tokens->token(),
 						'ci_csrf_token' => $this->security->get_csrf_hash()
 					);
 				}
@@ -440,28 +423,41 @@ class User extends MY_Controller {
 	 * location once they have successfully logged in. It does
 	 * not attempt to confirm that the user has permission to 
 	 * be on the page they are being redirected to.
-	 *
-	 * This method serves no real purpose for pages that are 
-	 * inside the Community Auth application. It is currently 
-	 * being used in a situation where authentication redirects
-	 * the user outside of Community Auth.
-	 *
-	 * The location of the redirect should be supplied as a 
-	 * query string var named "redirect".
 	 */
 	public function login()
 	{
-		if( $this->require_min_level(1) )
+		// Method should not be directly accessible
+		if( $this->uri->uri_string() == 'user/login')
 		{
-			if( $this->input->get('redirect') )
-			{
-				redirect( $this->input->get('redirect') );
-			}
-			else
-			{
-				redirect( secure_site_url('user') );
-			}
+			show_404();
 		}
+
+		if( strtolower( $_SERVER['REQUEST_METHOD'] ) == 'post' )
+		{
+			$this->require_min_level(1);
+		}
+
+		$this->setup_login_form();
+
+		// Get form from authentication class / log failed login attempt if applicable
+		$data = array(
+			'title' => WEBSITE_NAME . ' - Login',
+			'javascripts' => array(
+				'js/jquery.passwordToggle-1.1.js',
+				'js/jquery.char-limiter-3.0.0.js',
+				'js/default-char-limiters.js'
+			),
+			'extra_head' => '
+				<script>
+					$(document).ready(function(){
+						$("#show-password").passwordToggle({target:"#login_pass"});
+					});
+				</script>
+			',
+			'content' => $this->load->view( 'auth/login_form', ( isset( $view_data ) ) ? $view_data : '', TRUE )
+		);
+
+		$this->load->view( $this->template, $data );
 	}
 
 	// --------------------------------------------------------------
@@ -473,7 +469,7 @@ class User extends MY_Controller {
 	{
 		$this->authentication->logout();
 
-		redirect( secure_site_url('user?logout=1') );
+		redirect( secure_site_url( LOGIN_PAGE . '?logout=1') );
 	}
 
 	// --------------------------------------------------------------

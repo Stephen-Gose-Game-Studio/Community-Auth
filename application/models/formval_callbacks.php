@@ -2,12 +2,12 @@
 /**
  * Community Auth - Formval_callbacks Model
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -191,19 +191,14 @@ class Formval_callbacks extends CI_Model {
 			// Email the admin
 			$this->load->library('email');
 			$this->config->load('email');
+			$admin_email_config = config_item('admin_email_config');
 
-			$this->email->quick_email(
-				// Sender's Email Address
-				config_item('no_reply_email_address'),
-				// Sender's Name
-				WEBSITE_NAME,
-				// Recipient's Email Address
-				config_item('admin_email_address'),
-				// Subject of Email
-				WEBSITE_NAME . ' - Level Up Warning - ' . date("M j, Y"),
-				// Email Template
-				'email_templates/level-up-warning'
-			);
+			$this->email->quick_email( array(
+				'subject'        => WEBSITE_NAME . ' - Level Up Warning - ' . date("M j, Y"),
+				'email_template' => 'email_templates/level-up-warning',
+				'from_name'      => 'admin_email_config',
+				'to'             => $admin_email_config['from_email']
+			) );
 
 			return FALSE;
 		}

@@ -2,12 +2,12 @@
 /**
  * Community Auth - Auto Populate View
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 ?>
@@ -106,6 +106,48 @@
 					}
 
 					echo form_dropdown( 'model', $vehicle_models, set_value('model'), 'id="model" class="form_select"' );
+
+				?>
+
+			</div>
+			<div class="form-row">
+
+				<?php
+					// VEHICLE COLOR LABEL AND INPUT ***********************************
+					echo form_label('Vehicle Color','color',array('class'=>'form_label'));
+
+					echo input_requirement();
+
+					// If POST, there may be vehicle models
+					if( isset( $colors ) && ! empty( $colors ) )
+					{
+						// Default option
+						$vehicle_colors[] = '-- Select --';
+
+						// Options from query
+						foreach( $colors as $row )
+						{
+							$vehicle_colors[$row['color']] = $row['color'];
+						}
+					}
+
+					// If POST and models not empty
+					else if( isset( $models ) && ! empty( $models ) )
+					{
+						$vehicle_colors[] = '-- Select Model --';
+					}
+					// If POST and makes not empty
+					else if( isset( $makes ) && ! empty( $makes ) )
+					{
+						$vehicle_colors[] = '-- Select Make --';
+					}
+					else
+					{
+						// Default option if not POST request
+						$vehicle_colors[] = '-- Select Type --';
+					}
+
+					echo form_dropdown( 'color', $vehicle_colors, set_value('color'), 'id="color" class="form_select"' );
 
 				?>
 

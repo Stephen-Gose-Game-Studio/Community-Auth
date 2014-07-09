@@ -48,5 +48,8 @@ $route['privacy']            = 'static_pages/privacy';
 $route['robots.txt']         = 'static_pages/robots_txt';
 $route['screenshots']        = 'static_pages/screenshots';
 
+// Login page (authentication)
+$route[LOGIN_PAGE]           = 'user/login';
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

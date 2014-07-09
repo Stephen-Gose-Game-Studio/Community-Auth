@@ -2,16 +2,16 @@
 /**
  * Community Auth - PDF Creation Helper (uses DOMPDF)
  *
- * Community Auth is an open source authentication application for CodeIgniter 2.1.3
+ * Community Auth is an open source authentication application for CodeIgniter 2.2.0
  *
  * In order to use this helper, DOMPDF must be installed in the 
  * same directory, "application/helpers". DOMPDF is available
- * at http://http://code.google.com/p/dompdf/
+ * at http://code.google.com/p/dompdf/
  *
  * @package     Community Auth
  * @author      Robert B Gottier
- * @copyright   Copyright (c) 2011 - 2012, Robert B Gottier. (http://brianswebdesign.com/)
- * @license     BSD - http://http://www.opensource.org/licenses/BSD-3-Clause
+ * @copyright   Copyright (c) 2011 - 2014, Robert B Gottier. (http://brianswebdesign.com/)
+ * @license     BSD - http://www.opensource.org/licenses/BSD-3-Clause
  * @link        http://community-auth.com
  */
 
@@ -77,7 +77,7 @@ function pdf_create( $html, $config = array() )
 	// Set supplied paper
 	if( $options['set_paper'] !== FALSE )
 	{
-		$dompdf->set_paper( $options['paper_size'], $options['orientation'] );
+		$dompdf->set_paper( $options['paper_size'], $options['paper_orientation'] );
 	}
 
 	// Load the HTML that will be turned into a PDF
@@ -96,7 +96,7 @@ function pdf_create( $html, $config = array() )
 	$dompdf->render();
 
 	// If destination is the browser
-	if( $output_type == 'stream' )
+	if( $options['output_type'] == 'stream' )
 	{
 		$dompdf->stream( 
 			$options['filename'], 
@@ -108,7 +108,7 @@ function pdf_create( $html, $config = array() )
 	}
 
 	// Return PDF as a string (useful for email attachments)
-	else if( $output_type == 'string' )
+	else if( $options['output_type'] == 'string' )
 	{
 		return $dompdf->output( $options['output_compression'] );
 	}
